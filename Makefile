@@ -72,7 +72,7 @@ ${LSRC} :
 	${CLASSDIR}/etc/link-shared ${ASSN} ${LSRC}
 
 ${TSRC} ${CSRC}:
-	-ln -s ${CLASSDIR}/src/PA${ASSN}/$@ $@
+	cp ${CLASSDIR}/src/PA${ASSN}/$@ $@
 
 clean :
 	-rm -f *.s ${OUTPUT} ${CLS} *~ lexer parser cgen semant

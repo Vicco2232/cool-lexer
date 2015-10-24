@@ -1,1 +1,2 @@
-/Users/aprimadi/Classes/compiler-stanford/cool/src/PA2J/mycoolc
+#!/bin/csh -f
+./lexer $* | ./parser $* | ./semant $* | ./cgen $*
