@@ -10,8 +10,23 @@ import java.util.Arrays;
 %%{
     machine cool_lexer;
 
+    # Keywords Action
     action Class    { push_token(new Symbol(TokenConstants.CLASS)); }
     action Inherits { push_token(new Symbol(TokenConstants.INHERITS)); }
+    action New      { push_token(new Symbol(TokenConstants.NEW)); }
+    action If       { push_token(new Symbol(TokenConstants.IF)); }
+    action Then     { push_token(new Symbol(TokenConstants.THEN)); }
+    action Else     { push_token(new Symbol(TokenConstants.ELSE)); }
+    action Fi       { push_token(new Symbol(TokenConstants.FI)); }
+    action Case     { push_token(new Symbol(TokenConstants.CASE)); }
+    action Of       { push_token(new Symbol(TokenConstants.OF)); }
+    action Esac     { push_token(new Symbol(TokenConstants.ESAC)); }
+    action IsVoid   { push_token(new Symbol(TokenConstants.ISVOID)); }
+    action While    { push_token(new Symbol(TokenConstants.WHILE)); }
+    action Loop     { push_token(new Symbol(TokenConstants.LOOP)); }
+    action Pool     { push_token(new Symbol(TokenConstants.POOL)); }
+
+    # Type Action
     action TypeID   {
                         String token = get_token(data, ms, me);
                         AbstractSymbol sym = AbstractTable.idtable.addString(token);
@@ -22,6 +37,8 @@ import java.util.Arrays;
                         AbstractSymbol sym = AbstractTable.idtable.addString(token);
                         push_token(new Symbol(TokenConstants.OBJECTID, sym));
                     }
+
+    # Operator Action
     action Assign   { push_token(new Symbol(TokenConstants.ASSIGN)); }
     action Plus     { push_token(new Symbol(TokenConstants.PLUS)); }
     action Minus    { push_token(new Symbol(TokenConstants.MINUS)); }
@@ -34,6 +51,38 @@ import java.util.Arrays;
     action Lt       { push_token(new Symbol(TokenConstants.LT)); }
     action Le       { push_token(new Symbol(TokenConstants.LE)); }
     action Neg      { push_token(new Symbol(TokenConstants.NEG)); }
+    action LBrace   { push_token(new Symbol(TokenConstants.LBRACE)); }
+    action RBrace   { push_token(new Symbol(TokenConstants.RBRACE)); }
+
+    # Special Operator Action
+    action Colon    { push_token(new Symbol(TokenConstants.COLON)); }
+    action Semi     { push_token(new Symbol(TokenConstants.SEMI)); }
+    action Dot      { push_token(new Symbol(TokenConstants.DOT)); }
+    action Comma    { push_token(new Symbol(TokenConstants.COMMA)); }
+    action At       { push_token(new Symbol(TokenConstants.AT)); }
+
+    # Constant Action
+    action Integer  {
+                      String token = get_token(data, ms, me);
+                      Integer i = Integer.parseInt(token);
+                      AbstractSymbol sym = AbstractTable.inttable.addInt(i);
+                      push_token(new Symbol(TokenConstants.INT_CONST, sym));
+                    }
+    action Bool     {
+                      String token = get_token(data, ts, te);
+                      if (token == "true") {
+                        push_token(new Symbol(TokenConstants.BOOL_CONST, true));
+                      } else {
+                        push_token(new Symbol(TokenConstants.BOOL_CONST, false));
+                      }
+                    }
+    action String   {
+                      String token = get_token(data, ms, me);
+                      AbstractSymbol sym = AbstractTable.stringtable.addString(token);
+                      push_token(new Symbol(TokenConstants.STR_CONST, sym));
+                    }
+    action Quote    { System.out.println("QUOTE"); }
+
 
     action FV       { System.out.println("Entering feature_variable"); }
 
@@ -42,9 +91,26 @@ import java.util.Arrays;
     action mark_end     { me = fpc + 1; }
 
     # Comments
-    line_comment = /--.*/;
+    line_comment = '--' . (any - '\n')+;
     multiline_comment = '(*' . (any+ -- '*)') . '*)';
     comment = line_comment | multiline_comment;
+
+
+    # Keywords
+    class = 'class' %Class;
+    inherits = 'inherits' %Inherits;
+    new = 'new' %New;
+    if = 'if' %If;
+    then = 'then' %Then;
+    else = 'else' %Else;
+    fi = 'fi' %Fi;
+    case = 'case' %Case;
+    of = 'of' %Of;
+    esac = 'esac' %Esac;
+    isvoid = 'isvoid' %IsVoid;
+    while = 'while' %While;
+    loop = 'loop' %Loop;
+    pool = 'pool' %Pool;
 
     # Identifier
     keywords = 'class' | 'else' | 'false' | 'fi' | 'if' | 'in' | 'inherits'
@@ -56,9 +122,13 @@ import java.util.Arrays;
     typeid = identifier %TypeID;
 
     # Constants
-    integer = [0-9]+;
-    bool = 'true' | 'false';
-    string = '"' . (any - '"') . '"';
+    integer = [0-9]+ >mark_start @mark_end %Integer;
+    bool = 'true' | 'false' %Bool;
+    quote = '"';
+    string_char = any -- quote;
+    # string = '"' . (string_char . ('\\\n' | '\\"'))* . '"' %String;
+    string_content = any* >mark_start @mark_end;
+    string = (quote . (string_content %String) . quote);
 
     # Operator
     assign = '<-' %Assign;
@@ -73,35 +143,53 @@ import java.util.Arrays;
     lt = '<' %Lt;
     le = '<=' %Le;
     neg = '~' %Neg;
+    lbrace = '{' %LBrace;
+    rbrace = '}' %RBrace;
+
+    # Special operator
+    colon = ':' %Colon;
+    semi = ';' %Semi;
+    dot = '.' %Dot;
+    comma = ',' %Comma;
+    at = '@' %At;
 
     expr = (
+      assign |
       plus | minus | mult | div |
       neg |
       lt | le | eq |
       not |
       lparen | rparen |
+      lbrace | rbrace |
       integer |
       string |
       bool |
-      identifier |
-      space+
+      if | then | else | fi |
+      case | of | esac |
+      while | loop | pool |
+      isvoid |
+      objectid |
+      colon | semi | dot | comma | at |
+      space
     );
 
-    formal = objectid . space* . ':' . space* . typeid;
+    formal = objectid . space* . colon . space* . typeid;
 
-    feature_method = identifier . '(' . formal? . (',' . formal)* . ')' . '{' . expr . '}';
-    feature_variable = (objectid . space* . ':' . space* . typeid) >FV;
+    function_def = objectid . lparen . formal? . (comma . formal)* . rparen . lbrace . expr+ . rbrace;
     # feature_variable = objectid . space* . ':' . space* . typeid .
     #  (space* . '<-' . space* . expr+)?;
-    feature = (feature_method | feature_variable | space)+;
+    # feature = (feature_method | feature_variable | space)+;
 
-    inherits_stmt = 'inherits' @Inherits . space+ . (identifier %TypeID);
-    class = 'class' @Class . space+ . (identifier %TypeID) . space+ .
-            inherits_stmt? . space+ . '{' . feature* . '}';
+    inherits_stmt = 'inherits' @Inherits . space+ . typeid;
+    class_stmt = class . space+ . typeid . space+ . inherits_stmt?;
+    new_stmt = new . typeid;
 
     main := |*
-        class => { System.out.println("Class Definition: " + get_token(data, ts, te)); };
-    comment => { /* System.out.println("Ignoring comment: " + get_token(data, ts, te)); */ };
+        # comment;
+        # class_stmt;
+        # new_stmt;
+        # formal;
+        expr;
         space;
         any => { System.err.println("LEXER BUG - UNMATCHED: " + get_token(data, ts, te)); };
     *|;

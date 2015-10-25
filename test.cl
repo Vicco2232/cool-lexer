@@ -84,11 +84,9 @@ class Main {
             cells.print();
             (let countdown : Int <- 20 in
                 while 0 < countdown loop
-                    {
-                        cells.evolve();
-                        cells.print();
-                        countdown <- countdown - 1;
-
+                    cells.evolve();
+                    cells.print();
+                    countdown <- countdown - 1;
                 pool
             );  -- end let countdown
             self;

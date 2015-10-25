@@ -42,7 +42,7 @@ public class TokenConstants {
     public static final int NEG = 31;
     public static final int LBRACE = 38;
     public static final int ELSE = 3;
-    public static final int DARROW = 17;
+    public static final int DARROW = 17;    // Ignore
     public static final int WHILE = 13;     // Not implemented
     public static final int ESAC = 15;
     public static final int LET = 8;
