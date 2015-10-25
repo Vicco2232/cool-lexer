@@ -1,911 +1,1303 @@
-/*
- *  The scanner definition for COOL.
- */
+
+// line 1 "cool.rl"
 import java_cup.runtime.Symbol;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.IOException;
+
+import java.util.LinkedList;
+import java.util.Arrays;
+
+
+// line 108 "cool.rl"
 
 
 class CoolLexer implements java_cup.runtime.Scanner {
-	private final int YY_BUFFER_SIZE = 512;
-	private final int YY_F = -1;
-	private final int YY_NO_STATE = -1;
-	private final int YY_NOT_ACCEPT = 0;
-	private final int YY_START = 1;
-	private final int YY_END = 2;
-	private final int YY_NO_ANCHOR = 4;
-	private final int YY_BOL = 128;
-	private final int YY_EOF = 129;
-
-/*  Stuff enclosed in %{ %} is copied verbatim to the lexer class
- *  definition, all the extra variables/functions you want to use in the
- *  lexer actions should go here.  Don't remove or modify anything that
- *  was there initially.  */
     // Max size of string constants
     static int MAX_STR_CONST = 1025;
+
     // For assembling string constants
     StringBuffer string_buf = new StringBuffer();
     private int curr_lineno = 1;
-    int get_curr_lineno() {
-        return curr_lineno;
-    }
     private AbstractSymbol filename;
+    private BufferedReader reader;
+    LinkedList<Symbol> tokens = new LinkedList<Symbol>();
+
+    CoolLexer(java.io.Reader reader) throws IOException {
+        this();
+        if (null == reader) {
+            throw (new Error("Error: Bad input stream initializer."));
+        }
+        this.reader = new java.io.BufferedReader(reader);
+        run_lexer();
+    }
+
+    CoolLexer(java.io.InputStream instream) throws IOException {
+        this();
+        if (null == instream) {
+            throw (new Error("Error: Bad input stream initializer."));
+        }
+        this.reader = new BufferedReader(new InputStreamReader(instream));
+        run_lexer();
+    }
+
+    private CoolLexer() {
+        // Initialization code here
+    }
+
+    private void run_lexer() throws IOException {
+        StringBuffer sb = new StringBuffer();
+        int c;
+        while ((c = this.reader.read()) != -1) {
+            sb.append(Character.toChars(c));
+        }
+        char[] data = sb.toString().toCharArray();
+
+        int p = 0;
+        int pe = data.length;
+        int eof = data.length;
+        int ts = 0;
+        int te = 0;
+        int cs;
+        int act;
+
+        // ms and me means mark start and mark end respectively
+        int ms = 0;
+        int me = 0;
+
+        
+// line 71 "CoolLexer.java"
+	{
+	cs = cool_lexer_start;
+	ts = -1;
+	te = -1;
+	act = 0;
+	}
+
+// line 164 "cool.rl"
+        
+// line 81 "CoolLexer.java"
+	{
+	int _klen;
+	int _trans = 0;
+	int _acts;
+	int _nacts;
+	int _keys;
+	int _goto_targ = 0;
+
+	_goto: while (true) {
+	switch ( _goto_targ ) {
+	case 0:
+	if ( p == pe ) {
+		_goto_targ = 4;
+		continue _goto;
+	}
+case 1:
+	_acts = _cool_lexer_from_state_actions[cs];
+	_nacts = (int) _cool_lexer_actions[_acts++];
+	while ( _nacts-- > 0 ) {
+		switch ( _cool_lexer_actions[_acts++] ) {
+	case 19:
+// line 1 "NONE"
+	{ts = p;}
+	break;
+// line 106 "CoolLexer.java"
+		}
+	}
+
+	_match: do {
+	_keys = _cool_lexer_key_offsets[cs];
+	_trans = _cool_lexer_index_offsets[cs];
+	_klen = _cool_lexer_single_lengths[cs];
+	if ( _klen > 0 ) {
+		int _lower = _keys;
+		int _mid;
+		int _upper = _keys + _klen - 1;
+		while (true) {
+			if ( _upper < _lower )
+				break;
+
+			_mid = _lower + ((_upper-_lower) >> 1);
+			if ( data[p] < _cool_lexer_trans_keys[_mid] )
+				_upper = _mid - 1;
+			else if ( data[p] > _cool_lexer_trans_keys[_mid] )
+				_lower = _mid + 1;
+			else {
+				_trans += (_mid - _keys);
+				break _match;
+			}
+		}
+		_keys += _klen;
+		_trans += _klen;
+	}
+
+	_klen = _cool_lexer_range_lengths[cs];
+	if ( _klen > 0 ) {
+		int _lower = _keys;
+		int _mid;
+		int _upper = _keys + (_klen<<1) - 2;
+		while (true) {
+			if ( _upper < _lower )
+				break;
+
+			_mid = _lower + (((_upper-_lower) >> 1) & ~1);
+			if ( data[p] < _cool_lexer_trans_keys[_mid] )
+				_upper = _mid - 2;
+			else if ( data[p] > _cool_lexer_trans_keys[_mid+1] )
+				_lower = _mid + 2;
+			else {
+				_trans += ((_mid - _keys)>>1);
+				break _match;
+			}
+		}
+		_trans += _klen;
+	}
+	} while (false);
+
+	_trans = _cool_lexer_indicies[_trans];
+case 3:
+	cs = _cool_lexer_trans_targs[_trans];
+
+	if ( _cool_lexer_trans_actions[_trans] != 0 ) {
+		_acts = _cool_lexer_trans_actions[_trans];
+		_nacts = (int) _cool_lexer_actions[_acts++];
+		while ( _nacts-- > 0 )
+	{
+			switch ( _cool_lexer_actions[_acts++] )
+			{
+	case 0:
+// line 13 "cool.rl"
+	{ push_token(new Symbol(TokenConstants.CLASS)); }
+	break;
+	case 1:
+// line 14 "cool.rl"
+	{ push_token(new Symbol(TokenConstants.INHERITS)); }
+	break;
+	case 2:
+// line 15 "cool.rl"
+	{
+                        String token = get_token(data, ms, me);
+                        AbstractSymbol sym = AbstractTable.idtable.addString(token);
+                        push_token(new Symbol(TokenConstants.TYPEID, sym));
+                    }
+	break;
+	case 3:
+// line 20 "cool.rl"
+	{
+                        String token = get_token(data, ms, me);
+                        AbstractSymbol sym = AbstractTable.idtable.addString(token);
+                        push_token(new Symbol(TokenConstants.OBJECTID, sym));
+                    }
+	break;
+	case 4:
+// line 26 "cool.rl"
+	{ push_token(new Symbol(TokenConstants.PLUS)); }
+	break;
+	case 5:
+// line 27 "cool.rl"
+	{ push_token(new Symbol(TokenConstants.MINUS)); }
+	break;
+	case 6:
+// line 28 "cool.rl"
+	{ push_token(new Symbol(TokenConstants.MULT)); }
+	break;
+	case 7:
+// line 29 "cool.rl"
+	{ push_token(new Symbol(TokenConstants.DIV)); }
+	break;
+	case 8:
+// line 30 "cool.rl"
+	{ push_token(new Symbol(TokenConstants.LPAREN)); }
+	break;
+	case 9:
+// line 31 "cool.rl"
+	{ push_token(new Symbol(TokenConstants.RPAREN)); }
+	break;
+	case 10:
+// line 32 "cool.rl"
+	{ push_token(new Symbol(TokenConstants.NOT)); }
+	break;
+	case 11:
+// line 33 "cool.rl"
+	{ push_token(new Symbol(TokenConstants.EQ)); }
+	break;
+	case 12:
+// line 34 "cool.rl"
+	{ push_token(new Symbol(TokenConstants.LT)); }
+	break;
+	case 13:
+// line 35 "cool.rl"
+	{ push_token(new Symbol(TokenConstants.LE)); }
+	break;
+	case 14:
+// line 36 "cool.rl"
+	{ push_token(new Symbol(TokenConstants.NEG)); }
+	break;
+	case 15:
+// line 38 "cool.rl"
+	{ System.out.println("Entering feature_variable"); }
+	break;
+	case 16:
+// line 41 "cool.rl"
+	{ ms = p; }
+	break;
+	case 17:
+// line 42 "cool.rl"
+	{ me = p + 1; }
+	break;
+	case 20:
+// line 1 "NONE"
+	{te = p+1;}
+	break;
+	case 21:
+// line 103 "cool.rl"
+	{te = p+1;{ System.out.println("Class Definition: " + get_token(data, ts, te)); }}
+	break;
+	case 22:
+// line 104 "cool.rl"
+	{te = p+1;{ /* System.out.println("Ignoring comment: " + get_token(data, ts, te)); */ }}
+	break;
+	case 23:
+// line 105 "cool.rl"
+	{te = p+1;}
+	break;
+	case 24:
+// line 106 "cool.rl"
+	{te = p+1;{ System.err.println("LEXER BUG - UNMATCHED: " + get_token(data, ts, te)); }}
+	break;
+	case 25:
+// line 104 "cool.rl"
+	{te = p;p--;{ /* System.out.println("Ignoring comment: " + get_token(data, ts, te)); */ }}
+	break;
+	case 26:
+// line 106 "cool.rl"
+	{te = p;p--;{ System.err.println("LEXER BUG - UNMATCHED: " + get_token(data, ts, te)); }}
+	break;
+	case 27:
+// line 106 "cool.rl"
+	{{p = ((te))-1;}{ System.err.println("LEXER BUG - UNMATCHED: " + get_token(data, ts, te)); }}
+	break;
+// line 282 "CoolLexer.java"
+			}
+		}
+	}
+
+case 2:
+	_acts = _cool_lexer_to_state_actions[cs];
+	_nacts = (int) _cool_lexer_actions[_acts++];
+	while ( _nacts-- > 0 ) {
+		switch ( _cool_lexer_actions[_acts++] ) {
+	case 18:
+// line 1 "NONE"
+	{ts = -1;}
+	break;
+// line 296 "CoolLexer.java"
+		}
+	}
+
+	if ( ++p != pe ) {
+		_goto_targ = 1;
+		continue _goto;
+	}
+case 4:
+	if ( p == eof )
+	{
+	if ( _cool_lexer_eof_trans[cs] > 0 ) {
+		_trans = _cool_lexer_eof_trans[cs] - 1;
+		_goto_targ = 3;
+		continue _goto;
+	}
+	}
+
+case 5:
+	}
+	break; }
+	}
+
+// line 165 "cool.rl"
+    }
+
+    public Symbol next_token() {
+        return this.tokens.poll();
+    }
+
+    void push_token(Symbol sym) {
+        this.tokens.add(sym);
+    }
+
+    int get_curr_lineno() {
+        return this.curr_lineno;
+    }
+
     void set_filename(String fname) {
         filename = AbstractTable.stringtable.addString(fname);
     }
+
+    String get_token(char[] data, int ts, int te) {
+        char[] token = Arrays.copyOfRange(data, ts, te);
+        return new String(token);
+    }
+
     AbstractSymbol curr_filename() {
         return filename;
     }
-	private java.io.BufferedReader yy_reader;
-	private int yy_buffer_index;
-	private int yy_buffer_read;
-	private int yy_buffer_start;
-	private int yy_buffer_end;
-	private char yy_buffer[];
-	private boolean yy_at_bol;
-	private int yy_lexical_state;
 
-	CoolLexer (java.io.Reader reader) {
-		this ();
-		if (null == reader) {
-			throw (new Error("Error: Bad input stream initializer."));
-		}
-		yy_reader = new java.io.BufferedReader(reader);
-	}
-
-	CoolLexer (java.io.InputStream instream) {
-		this ();
-		if (null == instream) {
-			throw (new Error("Error: Bad input stream initializer."));
-		}
-		yy_reader = new java.io.BufferedReader(new java.io.InputStreamReader(instream));
-	}
-
-	private CoolLexer () {
-		yy_buffer = new char[YY_BUFFER_SIZE];
-		yy_buffer_read = 0;
-		yy_buffer_index = 0;
-		yy_buffer_start = 0;
-		yy_buffer_end = 0;
-		yy_at_bol = true;
-		yy_lexical_state = YYINITIAL;
-
-/*  Stuff enclosed in %init{ %init} is copied verbatim to the lexer
- *  class constructor, all the extra initialization you want to do should
- *  go here.  Don't remove or modify anything that was there initially. */
-    // empty for now
-	}
-
-	private boolean yy_eof_done = false;
-	private final int STRING = 2;
-	private final int YYINITIAL = 0;
-	private final int COMMENT = 1;
-	private final int yy_state_dtrans[] = {
-		0,
-		49,
-		58
+    
+// line 348 "CoolLexer.java"
+private static byte[] init__cool_lexer_actions_0()
+{
+	return new byte [] {
+	    0,    1,    0,    1,    1,    1,    2,    1,    3,    1,    4,    1,
+	    5,    1,    6,    1,    7,    1,    8,    1,    9,    1,   10,    1,
+	   11,    1,   12,    1,   13,    1,   14,    1,   17,    1,   18,    1,
+	   19,    1,   20,    1,   21,    1,   22,    1,   23,    1,   24,    1,
+	   25,    1,   26,    1,   27,    2,    2,   21,    2,    3,    2,    2,
+	   16,   17,    3,   16,   17,   15,    4,    2,   16,   17,   15,    4,
+	   17,    2,   16,   15
 	};
-	private void yybegin (int state) {
-		yy_lexical_state = state;
-	}
-	private int yy_advance ()
-		throws java.io.IOException {
-		int next_read;
-		int i;
-		int j;
+}
 
-		if (yy_buffer_index < yy_buffer_read) {
-			return yy_buffer[yy_buffer_index++];
-		}
+private static final byte _cool_lexer_actions[] = init__cool_lexer_actions_0();
 
-		if (0 != yy_buffer_start) {
-			i = yy_buffer_start;
-			j = 0;
-			while (i < yy_buffer_read) {
-				yy_buffer[j] = yy_buffer[i];
-				++i;
-				++j;
-			}
-			yy_buffer_end = yy_buffer_end - yy_buffer_start;
-			yy_buffer_start = 0;
-			yy_buffer_read = j;
-			yy_buffer_index = j;
-			next_read = yy_reader.read(yy_buffer,
-					yy_buffer_read,
-					yy_buffer.length - yy_buffer_read);
-			if (-1 == next_read) {
-				return YY_EOF;
-			}
-			yy_buffer_read = yy_buffer_read + next_read;
-		}
 
-		while (yy_buffer_index >= yy_buffer_read) {
-			if (yy_buffer_index >= yy_buffer.length) {
-				yy_buffer = yy_double(yy_buffer);
-			}
-			next_read = yy_reader.read(yy_buffer,
-					yy_buffer_read,
-					yy_buffer.length - yy_buffer_read);
-			if (-1 == next_read) {
-				return YY_EOF;
-			}
-			yy_buffer_read = yy_buffer_read + next_read;
-		}
-		return yy_buffer[yy_buffer_index++];
-	}
-	private void yy_move_end () {
-		if (yy_buffer_end > yy_buffer_start &&
-		    '\n' == yy_buffer[yy_buffer_end-1])
-			yy_buffer_end--;
-		if (yy_buffer_end > yy_buffer_start &&
-		    '\r' == yy_buffer[yy_buffer_end-1])
-			yy_buffer_end--;
-	}
-	private boolean yy_last_was_cr=false;
-	private void yy_mark_start () {
-		yy_buffer_start = yy_buffer_index;
-	}
-	private void yy_mark_end () {
-		yy_buffer_end = yy_buffer_index;
-	}
-	private void yy_to_mark () {
-		yy_buffer_index = yy_buffer_end;
-		yy_at_bol = (yy_buffer_end > yy_buffer_start) &&
-		            ('\r' == yy_buffer[yy_buffer_end-1] ||
-		             '\n' == yy_buffer[yy_buffer_end-1] ||
-		             2028/*LS*/ == yy_buffer[yy_buffer_end-1] ||
-		             2029/*PS*/ == yy_buffer[yy_buffer_end-1]);
-	}
-	private java.lang.String yytext () {
-		return (new java.lang.String(yy_buffer,
-			yy_buffer_start,
-			yy_buffer_end - yy_buffer_start));
-	}
-	private int yylength () {
-		return yy_buffer_end - yy_buffer_start;
-	}
-	private char[] yy_double (char buf[]) {
-		int i;
-		char newbuf[];
-		newbuf = new char[2*buf.length];
-		for (i = 0; i < buf.length; ++i) {
-			newbuf[i] = buf[i];
-		}
-		return newbuf;
-	}
-	private final int YY_E_INTERNAL = 0;
-	private final int YY_E_MATCH = 1;
-	private java.lang.String yy_error_string[] = {
-		"Error: Internal error.\n",
-		"Error: Unmatched input.\n"
+private static short[] init__cool_lexer_key_offsets_0()
+{
+	return new short [] {
+	    0,    1,    2,    4,    6,    7,    8,    9,   12,   29,   39,   43,
+	   48,   49,   50,   51,   52,   53,   54,   55,   58,   75,   85,   89,
+	  107,  119,  123,  140,  151,  164,  183,  197,  213,  214,  243,  247,
+	  248,  249,  250,  251,  252,  253,  254,  255,  256,  259,  261,  262,
+	  263,  271,  281,  290,  299,  306,  315,  324,  333,  343,  352,  361,
+	  371,  380,  389,  398,  408,  416,  425,  434,  443,  452,  461,  470,
+	  479,  488,  497,  506,  515,  525,  534,  543,  552,  562,  571,  580,
+	  588,  597,  606,  615,  624,  634,  643,  652,  661,  670,  679,  688,
+	  689,  703,  714,  718,  735,  744,  755,  765,  775,  782,  792,  802,
+	  812,  823,  833,  843,  854,  864,  875,  883,  893,  903,  913,  923,
+	  933,  943,  953,  963,  973,  983,  993, 1004, 1014, 1024, 1034, 1045,
+	 1055, 1065, 1075, 1085, 1095, 1106, 1116, 1126, 1136, 1146, 1156, 1166,
+	 1179, 1191, 1203, 1210, 1222, 1234, 1246, 1259, 1271, 1283, 1296, 1308,
+	 1321, 1329, 1341, 1353, 1365, 1377, 1389, 1401, 1413, 1425, 1437, 1449,
+	 1461, 1474, 1486, 1498, 1510, 1523, 1535, 1547, 1559, 1571, 1583, 1596,
+	 1608, 1620, 1632, 1644, 1656, 1668, 1681, 1694, 1701, 1714, 1727, 1740,
+	 1754, 1767, 1780, 1794, 1807, 1821, 1829, 1842, 1855, 1868, 1881, 1894,
+	 1907, 1920, 1933, 1946, 1959, 1972, 1986, 1999, 2012, 2025, 2039, 2052,
+	 2065, 2078, 2091, 2104, 2118, 2131, 2144, 2157, 2170, 2183, 2196, 2209,
+	 2223, 2237, 2249, 2263, 2277, 2291, 2304, 2318, 2332, 2345, 2359, 2373,
+	 2384, 2397, 2410, 2423, 2437, 2451, 2465, 2479, 2493, 2507, 2521, 2535,
+	 2549, 2563, 2577, 2590, 2604, 2618, 2632, 2645, 2659, 2671, 2683, 2697,
+	 2711, 2724, 2738, 2752, 2766, 2778, 2792, 2806, 2818, 2829, 2840, 2847,
+	 2858, 2869, 2880, 2892, 2903, 2914, 2926, 2937, 2949, 2957, 2968, 2979,
+	 2990, 3001, 3012, 3023, 3034, 3045, 3056, 3067, 3078, 3090, 3101, 3112,
+	 3123, 3135, 3146, 3157, 3168, 3179, 3190, 3202, 3213, 3224, 3235, 3246,
+	 3257, 3268, 3280, 3291, 3302, 3309, 3320, 3331, 3342, 3354, 3365, 3376,
+	 3388, 3399, 3411, 3419, 3430, 3441, 3452, 3463, 3474, 3485, 3496, 3507,
+	 3518, 3529, 3540, 3552, 3563, 3574, 3585, 3597, 3608, 3619, 3630, 3641,
+	 3652, 3664, 3675, 3686, 3697, 3708, 3719, 3730, 3736, 3737, 3738, 3738
 	};
-	private void yy_error (int code,boolean fatal) {
-		java.lang.System.out.print(yy_error_string[code]);
-		java.lang.System.out.flush();
-		if (fatal) {
-			throw new Error("Fatal Error.\n");
-		}
-	}
-	private int[][] unpackFromString(int size1, int size2, String st) {
-		int colonIndex = -1;
-		String lengthString;
-		int sequenceLength = 0;
-		int sequenceInteger = 0;
+}
 
-		int commaIndex;
-		String workString;
+private static final short _cool_lexer_key_offsets[] = init__cool_lexer_key_offsets_0();
 
-		int res[][] = new int[size1][size2];
-		for (int i= 0; i < size1; i++) {
-			for (int j= 0; j < size2; j++) {
-				if (sequenceLength != 0) {
-					res[i][j] = sequenceInteger;
-					sequenceLength--;
-					continue;
-				}
-				commaIndex = st.indexOf(',');
-				workString = (commaIndex==-1) ? st :
-					st.substring(0, commaIndex);
-				st = st.substring(commaIndex+1);
-				colonIndex = workString.indexOf(':');
-				if (colonIndex == -1) {
-					res[i][j]=Integer.parseInt(workString);
-					continue;
-				}
-				lengthString =
-					workString.substring(colonIndex+1);
-				sequenceLength=Integer.parseInt(lengthString);
-				workString=workString.substring(0,colonIndex);
-				sequenceInteger=Integer.parseInt(workString);
-				res[i][j] = sequenceInteger;
-				sequenceLength--;
-			}
-		}
-		return res;
-	}
-	private int yy_acpt[] = {
-		/* 0 */ YY_NOT_ACCEPT,
-		/* 1 */ YY_NO_ANCHOR,
-		/* 2 */ YY_NO_ANCHOR,
-		/* 3 */ YY_NO_ANCHOR,
-		/* 4 */ YY_NO_ANCHOR,
-		/* 5 */ YY_NO_ANCHOR,
-		/* 6 */ YY_NO_ANCHOR,
-		/* 7 */ YY_NO_ANCHOR,
-		/* 8 */ YY_NO_ANCHOR,
-		/* 9 */ YY_NO_ANCHOR,
-		/* 10 */ YY_NO_ANCHOR,
-		/* 11 */ YY_NO_ANCHOR,
-		/* 12 */ YY_NO_ANCHOR,
-		/* 13 */ YY_NO_ANCHOR,
-		/* 14 */ YY_NO_ANCHOR,
-		/* 15 */ YY_NO_ANCHOR,
-		/* 16 */ YY_NO_ANCHOR,
-		/* 17 */ YY_NO_ANCHOR,
-		/* 18 */ YY_NO_ANCHOR,
-		/* 19 */ YY_NO_ANCHOR,
-		/* 20 */ YY_NO_ANCHOR,
-		/* 21 */ YY_NO_ANCHOR,
-		/* 22 */ YY_NO_ANCHOR,
-		/* 23 */ YY_NO_ANCHOR,
-		/* 24 */ YY_NO_ANCHOR,
-		/* 25 */ YY_NO_ANCHOR,
-		/* 26 */ YY_NO_ANCHOR,
-		/* 27 */ YY_NO_ANCHOR,
-		/* 28 */ YY_NO_ANCHOR,
-		/* 29 */ YY_NO_ANCHOR,
-		/* 30 */ YY_NO_ANCHOR,
-		/* 31 */ YY_NO_ANCHOR,
-		/* 32 */ YY_NO_ANCHOR,
-		/* 33 */ YY_NO_ANCHOR,
-		/* 34 */ YY_NO_ANCHOR,
-		/* 35 */ YY_NO_ANCHOR,
-		/* 36 */ YY_NO_ANCHOR,
-		/* 37 */ YY_NO_ANCHOR,
-		/* 38 */ YY_NO_ANCHOR,
-		/* 39 */ YY_NO_ANCHOR,
-		/* 40 */ YY_NO_ANCHOR,
-		/* 41 */ YY_NO_ANCHOR,
-		/* 42 */ YY_NO_ANCHOR,
-		/* 43 */ YY_NO_ANCHOR,
-		/* 44 */ YY_NO_ANCHOR,
-		/* 45 */ YY_NOT_ACCEPT,
-		/* 46 */ YY_NO_ANCHOR,
-		/* 47 */ YY_NO_ANCHOR,
-		/* 48 */ YY_NO_ANCHOR,
-		/* 49 */ YY_NOT_ACCEPT,
-		/* 50 */ YY_NO_ANCHOR,
-		/* 51 */ YY_NO_ANCHOR,
-		/* 52 */ YY_NOT_ACCEPT,
-		/* 53 */ YY_NO_ANCHOR,
-		/* 54 */ YY_NO_ANCHOR,
-		/* 55 */ YY_NOT_ACCEPT,
-		/* 56 */ YY_NO_ANCHOR,
-		/* 57 */ YY_NO_ANCHOR,
-		/* 58 */ YY_NOT_ACCEPT,
-		/* 59 */ YY_NO_ANCHOR,
-		/* 60 */ YY_NO_ANCHOR,
-		/* 61 */ YY_NO_ANCHOR,
-		/* 62 */ YY_NO_ANCHOR,
-		/* 63 */ YY_NO_ANCHOR,
-		/* 64 */ YY_NO_ANCHOR,
-		/* 65 */ YY_NO_ANCHOR,
-		/* 66 */ YY_NO_ANCHOR,
-		/* 67 */ YY_NO_ANCHOR,
-		/* 68 */ YY_NO_ANCHOR,
-		/* 69 */ YY_NO_ANCHOR,
-		/* 70 */ YY_NO_ANCHOR,
-		/* 71 */ YY_NO_ANCHOR,
-		/* 72 */ YY_NO_ANCHOR,
-		/* 73 */ YY_NO_ANCHOR,
-		/* 74 */ YY_NO_ANCHOR,
-		/* 75 */ YY_NO_ANCHOR,
-		/* 76 */ YY_NO_ANCHOR,
-		/* 77 */ YY_NO_ANCHOR,
-		/* 78 */ YY_NO_ANCHOR,
-		/* 79 */ YY_NO_ANCHOR,
-		/* 80 */ YY_NO_ANCHOR,
-		/* 81 */ YY_NO_ANCHOR,
-		/* 82 */ YY_NO_ANCHOR,
-		/* 83 */ YY_NO_ANCHOR,
-		/* 84 */ YY_NO_ANCHOR,
-		/* 85 */ YY_NO_ANCHOR,
-		/* 86 */ YY_NO_ANCHOR,
-		/* 87 */ YY_NO_ANCHOR,
-		/* 88 */ YY_NO_ANCHOR,
-		/* 89 */ YY_NO_ANCHOR,
-		/* 90 */ YY_NO_ANCHOR,
-		/* 91 */ YY_NO_ANCHOR,
-		/* 92 */ YY_NO_ANCHOR
+
+private static char[] init__cool_lexer_trans_keys_0()
+{
+	return new char [] {
+	   42,   42,   41,   42,   41,   42,   97,  115,  115,   32,    9,   13,
+	   32,   99,  101,  102,  105,  108,  110,  111,  112,  116,  119,    9,
+	   13,   65,   90,   97,  122,   32,   95,    9,   13,   48,   57,   65,
+	   90,   97,  122,   32,  105,    9,   13,   32,  105,  123,    9,   13,
+	  110,  104,  101,  114,  105,  116,  115,   32,    9,   13,   32,   99,
+	  101,  102,  105,  108,  110,  111,  112,  116,  119,    9,   13,   65,
+	   90,   97,  122,   32,   95,    9,   13,   48,   57,   65,   90,   97,
+	  122,   32,  123,    9,   13,   32,   99,  101,  102,  105,  108,  110,
+	  111,  112,  116,  119,  125,    9,   13,   65,   90,   97,  122,   32,
+	   40,   58,   95,    9,   13,   48,   57,   65,   90,   97,  122,   32,
+	   58,    9,   13,   32,   99,  101,  102,  105,  108,  110,  111,  112,
+	  116,  119,    9,   13,   65,   90,   97,  122,   32,   95,  125,    9,
+	   13,   48,   57,   65,   90,   97,  122,   32,   40,   58,   95,  125,
+	    9,   13,   48,   57,   65,   90,   97,  122,   32,   58,   99,  101,
+	  102,  105,  108,  110,  111,  112,  116,  119,  125,    9,   13,   65,
+	   90,   97,  122,   32,   40,   58,   95,   97,  108,    9,   13,   48,
+	   57,   65,   90,   98,  122,   41,   44,   99,  101,  102,  105,  108,
+	  110,  111,  112,  116,  119,   65,   90,   97,  122,  123,   32,   34,
+	   40,   41,   42,   43,   45,   47,   60,   61,   99,  101,  102,  105,
+	  108,  110,  111,  112,  116,  119,  126,    9,   13,   48,   57,   65,
+	   90,   97,  122,   32,  125,    9,   13,   34,   34,  125,  125,  125,
+	  125,  125,  125,  125,  125,   48,   57,   61,  125,  125,  125,   95,
+	  125,   48,   57,   65,   90,   97,  122,   95,   97,  108,  125,   48,
+	   57,   65,   90,   98,  122,   95,  115,  125,   48,   57,   65,   90,
+	   97,  122,   95,  101,  125,   48,   57,   65,   90,   97,  122,   95,
+	   48,   57,   65,   90,   97,  122,   95,   97,  125,   48,   57,   65,
+	   90,   98,  122,   95,  115,  125,   48,   57,   65,   90,   97,  122,
+	   95,  115,  125,   48,   57,   65,   90,   97,  122,   95,  108,  115,
+	  125,   48,   57,   65,   90,   97,  122,   95,   97,  125,   48,   57,
+	   65,   90,   98,  122,   95,   99,  125,   48,   57,   65,   90,   97,
+	  122,   95,   97,  105,  125,   48,   57,   65,   90,   98,  122,   95,
+	  108,  125,   48,   57,   65,   90,   97,  122,   95,  115,  125,   48,
+	   57,   65,   90,   97,  122,   95,  101,  125,   48,   57,   65,   90,
+	   97,  122,   95,  102,  110,  125,   48,   57,   65,   90,   97,  122,
+	   95,  104,   48,   57,   65,   90,   97,  122,   95,  101,  125,   48,
+	   57,   65,   90,   97,  122,   95,  114,  125,   48,   57,   65,   90,
+	   97,  122,   95,  105,  125,   48,   57,   65,   90,   97,  122,   95,
+	  116,  125,   48,   57,   65,   90,   97,  122,   95,  115,  125,   48,
+	   57,   65,   90,   97,  122,   95,  105,  125,   48,   57,   65,   90,
+	   97,  122,   95,  115,  125,   48,   57,   65,   90,   97,  122,   95,
+	  118,  125,   48,   57,   65,   90,   97,  122,   95,  111,  125,   48,
+	   57,   65,   90,   97,  122,   95,  105,  125,   48,   57,   65,   90,
+	   97,  122,   95,  100,  125,   48,   57,   65,   90,   97,  122,   95,
+	  101,  111,  125,   48,   57,   65,   90,   97,  122,   95,  116,  125,
+	   48,   57,   65,   90,   97,  122,   95,  111,  125,   48,   57,   65,
+	   90,   97,  122,   95,  112,  125,   48,   57,   65,   90,   97,  122,
+	   95,  101,  111,  125,   48,   57,   65,   90,   97,  122,   95,  119,
+	  125,   48,   57,   65,   90,   97,  122,   95,  116,  125,   48,   57,
+	   65,   90,   97,  122,   95,  125,   48,   57,   65,   90,   97,  122,
+	   95,  102,  125,   48,   57,   65,   90,   97,  122,   95,  111,  125,
+	   48,   57,   65,   90,   97,  122,   95,  111,  125,   48,   57,   65,
+	   90,   97,  122,   95,  108,  125,   48,   57,   65,   90,   97,  122,
+	   95,  104,  114,  125,   48,   57,   65,   90,   97,  122,   95,  101,
+	  125,   48,   57,   65,   90,   97,  122,   95,  110,  125,   48,   57,
+	   65,   90,   97,  122,   95,  117,  125,   48,   57,   65,   90,   97,
+	  122,   95,  104,  125,   48,   57,   65,   90,   97,  122,   95,  105,
+	  125,   48,   57,   65,   90,   97,  122,   95,  108,  125,   48,   57,
+	   65,   90,   97,  122,  125,   99,  101,  102,  105,  108,  110,  111,
+	  112,  116,  119,   65,   90,   97,  122,   32,   58,   95,    9,   13,
+	   48,   57,   65,   90,   97,  122,   32,   58,    9,   13,   32,   99,
+	  101,  102,  105,  108,  110,  111,  112,  116,  119,    9,   13,   65,
+	   90,   97,  122,   41,   44,   95,   48,   57,   65,   90,   97,  122,
+	   41,   44,   95,   97,  108,   48,   57,   65,   90,   98,  122,   41,
+	   44,   95,  115,   48,   57,   65,   90,   97,  122,   41,   44,   95,
+	  101,   48,   57,   65,   90,   97,  122,   95,   48,   57,   65,   90,
+	   97,  122,   41,   44,   95,   97,   48,   57,   65,   90,   98,  122,
+	   41,   44,   95,  115,   48,   57,   65,   90,   97,  122,   41,   44,
+	   95,  115,   48,   57,   65,   90,   97,  122,   41,   44,   95,  108,
+	  115,   48,   57,   65,   90,   97,  122,   41,   44,   95,   97,   48,
+	   57,   65,   90,   98,  122,   41,   44,   95,   99,   48,   57,   65,
+	   90,   97,  122,   41,   44,   95,   97,  105,   48,   57,   65,   90,
+	   98,  122,   41,   44,   95,  108,   48,   57,   65,   90,   97,  122,
+	   41,   44,   95,  102,  110,   48,   57,   65,   90,   97,  122,   95,
+	  104,   48,   57,   65,   90,   97,  122,   41,   44,   95,  101,   48,
+	   57,   65,   90,   97,  122,   41,   44,   95,  114,   48,   57,   65,
+	   90,   97,  122,   41,   44,   95,  105,   48,   57,   65,   90,   97,
+	  122,   41,   44,   95,  116,   48,   57,   65,   90,   97,  122,   41,
+	   44,   95,  115,   48,   57,   65,   90,   97,  122,   41,   44,   95,
+	  105,   48,   57,   65,   90,   97,  122,   41,   44,   95,  115,   48,
+	   57,   65,   90,   97,  122,   41,   44,   95,  118,   48,   57,   65,
+	   90,   97,  122,   41,   44,   95,  111,   48,   57,   65,   90,   97,
+	  122,   41,   44,   95,  105,   48,   57,   65,   90,   97,  122,   41,
+	   44,   95,  100,   48,   57,   65,   90,   97,  122,   41,   44,   95,
+	  101,  111,   48,   57,   65,   90,   97,  122,   41,   44,   95,  116,
+	   48,   57,   65,   90,   97,  122,   41,   44,   95,  111,   48,   57,
+	   65,   90,   97,  122,   41,   44,   95,  112,   48,   57,   65,   90,
+	   97,  122,   41,   44,   95,  101,  111,   48,   57,   65,   90,   97,
+	  122,   41,   44,   95,  119,   48,   57,   65,   90,   97,  122,   41,
+	   44,   95,  102,   48,   57,   65,   90,   97,  122,   41,   44,   95,
+	  111,   48,   57,   65,   90,   97,  122,   41,   44,   95,  111,   48,
+	   57,   65,   90,   97,  122,   41,   44,   95,  108,   48,   57,   65,
+	   90,   97,  122,   41,   44,   95,  104,  114,   48,   57,   65,   90,
+	   97,  122,   41,   44,   95,  101,   48,   57,   65,   90,   97,  122,
+	   41,   44,   95,  110,   48,   57,   65,   90,   97,  122,   41,   44,
+	   95,  117,   48,   57,   65,   90,   97,  122,   41,   44,   95,  104,
+	   48,   57,   65,   90,   97,  122,   41,   44,   95,  105,   48,   57,
+	   65,   90,   97,  122,   41,   44,   95,  108,   48,   57,   65,   90,
+	   97,  122,   32,   58,   95,   97,  108,    9,   13,   48,   57,   65,
+	   90,   98,  122,   32,   58,   95,  115,    9,   13,   48,   57,   65,
+	   90,   97,  122,   32,   58,   95,  101,    9,   13,   48,   57,   65,
+	   90,   97,  122,   95,   48,   57,   65,   90,   97,  122,   32,   58,
+	   95,   97,    9,   13,   48,   57,   65,   90,   98,  122,   32,   58,
+	   95,  115,    9,   13,   48,   57,   65,   90,   97,  122,   32,   58,
+	   95,  115,    9,   13,   48,   57,   65,   90,   97,  122,   32,   58,
+	   95,  108,  115,    9,   13,   48,   57,   65,   90,   97,  122,   32,
+	   58,   95,   97,    9,   13,   48,   57,   65,   90,   98,  122,   32,
+	   58,   95,   99,    9,   13,   48,   57,   65,   90,   97,  122,   32,
+	   58,   95,   97,  105,    9,   13,   48,   57,   65,   90,   98,  122,
+	   32,   58,   95,  108,    9,   13,   48,   57,   65,   90,   97,  122,
+	   32,   58,   95,  102,  110,    9,   13,   48,   57,   65,   90,   97,
+	  122,   95,  104,   48,   57,   65,   90,   97,  122,   32,   58,   95,
+	  101,    9,   13,   48,   57,   65,   90,   97,  122,   32,   58,   95,
+	  114,    9,   13,   48,   57,   65,   90,   97,  122,   32,   58,   95,
+	  105,    9,   13,   48,   57,   65,   90,   97,  122,   32,   58,   95,
+	  116,    9,   13,   48,   57,   65,   90,   97,  122,   32,   58,   95,
+	  115,    9,   13,   48,   57,   65,   90,   97,  122,   32,   58,   95,
+	  105,    9,   13,   48,   57,   65,   90,   97,  122,   32,   58,   95,
+	  115,    9,   13,   48,   57,   65,   90,   97,  122,   32,   58,   95,
+	  118,    9,   13,   48,   57,   65,   90,   97,  122,   32,   58,   95,
+	  111,    9,   13,   48,   57,   65,   90,   97,  122,   32,   58,   95,
+	  105,    9,   13,   48,   57,   65,   90,   97,  122,   32,   58,   95,
+	  100,    9,   13,   48,   57,   65,   90,   97,  122,   32,   58,   95,
+	  101,  111,    9,   13,   48,   57,   65,   90,   97,  122,   32,   58,
+	   95,  116,    9,   13,   48,   57,   65,   90,   97,  122,   32,   58,
+	   95,  111,    9,   13,   48,   57,   65,   90,   97,  122,   32,   58,
+	   95,  112,    9,   13,   48,   57,   65,   90,   97,  122,   32,   58,
+	   95,  101,  111,    9,   13,   48,   57,   65,   90,   97,  122,   32,
+	   58,   95,  119,    9,   13,   48,   57,   65,   90,   97,  122,   32,
+	   58,   95,  102,    9,   13,   48,   57,   65,   90,   97,  122,   32,
+	   58,   95,  111,    9,   13,   48,   57,   65,   90,   97,  122,   32,
+	   58,   95,  111,    9,   13,   48,   57,   65,   90,   97,  122,   32,
+	   58,   95,  108,    9,   13,   48,   57,   65,   90,   97,  122,   32,
+	   58,   95,  104,  114,    9,   13,   48,   57,   65,   90,   97,  122,
+	   32,   58,   95,  101,    9,   13,   48,   57,   65,   90,   97,  122,
+	   32,   58,   95,  110,    9,   13,   48,   57,   65,   90,   97,  122,
+	   32,   58,   95,  117,    9,   13,   48,   57,   65,   90,   97,  122,
+	   32,   58,   95,  104,    9,   13,   48,   57,   65,   90,   97,  122,
+	   32,   58,   95,  105,    9,   13,   48,   57,   65,   90,   97,  122,
+	   32,   58,   95,  108,    9,   13,   48,   57,   65,   90,   97,  122,
+	   32,   40,   58,   95,  115,    9,   13,   48,   57,   65,   90,   97,
+	  122,   32,   40,   58,   95,  101,    9,   13,   48,   57,   65,   90,
+	   97,  122,   95,   48,   57,   65,   90,   97,  122,   32,   40,   58,
+	   95,   97,    9,   13,   48,   57,   65,   90,   98,  122,   32,   40,
+	   58,   95,  115,    9,   13,   48,   57,   65,   90,   97,  122,   32,
+	   40,   58,   95,  115,    9,   13,   48,   57,   65,   90,   97,  122,
+	   32,   40,   58,   95,  108,  115,    9,   13,   48,   57,   65,   90,
+	   97,  122,   32,   40,   58,   95,   97,    9,   13,   48,   57,   65,
+	   90,   98,  122,   32,   40,   58,   95,   99,    9,   13,   48,   57,
+	   65,   90,   97,  122,   32,   40,   58,   95,   97,  105,    9,   13,
+	   48,   57,   65,   90,   98,  122,   32,   40,   58,   95,  108,    9,
+	   13,   48,   57,   65,   90,   97,  122,   32,   40,   58,   95,  102,
+	  110,    9,   13,   48,   57,   65,   90,   97,  122,   95,  104,   48,
+	   57,   65,   90,   97,  122,   32,   40,   58,   95,  101,    9,   13,
+	   48,   57,   65,   90,   97,  122,   32,   40,   58,   95,  114,    9,
+	   13,   48,   57,   65,   90,   97,  122,   32,   40,   58,   95,  105,
+	    9,   13,   48,   57,   65,   90,   97,  122,   32,   40,   58,   95,
+	  116,    9,   13,   48,   57,   65,   90,   97,  122,   32,   40,   58,
+	   95,  115,    9,   13,   48,   57,   65,   90,   97,  122,   32,   40,
+	   58,   95,  105,    9,   13,   48,   57,   65,   90,   97,  122,   32,
+	   40,   58,   95,  115,    9,   13,   48,   57,   65,   90,   97,  122,
+	   32,   40,   58,   95,  118,    9,   13,   48,   57,   65,   90,   97,
+	  122,   32,   40,   58,   95,  111,    9,   13,   48,   57,   65,   90,
+	   97,  122,   32,   40,   58,   95,  105,    9,   13,   48,   57,   65,
+	   90,   97,  122,   32,   40,   58,   95,  100,    9,   13,   48,   57,
+	   65,   90,   97,  122,   32,   40,   58,   95,  101,  111,    9,   13,
+	   48,   57,   65,   90,   97,  122,   32,   40,   58,   95,  116,    9,
+	   13,   48,   57,   65,   90,   97,  122,   32,   40,   58,   95,  111,
+	    9,   13,   48,   57,   65,   90,   97,  122,   32,   40,   58,   95,
+	  112,    9,   13,   48,   57,   65,   90,   97,  122,   32,   40,   58,
+	   95,  101,  111,    9,   13,   48,   57,   65,   90,   97,  122,   32,
+	   40,   58,   95,  119,    9,   13,   48,   57,   65,   90,   97,  122,
+	   32,   40,   58,   95,  102,    9,   13,   48,   57,   65,   90,   97,
+	  122,   32,   40,   58,   95,  111,    9,   13,   48,   57,   65,   90,
+	   97,  122,   32,   40,   58,   95,  111,    9,   13,   48,   57,   65,
+	   90,   97,  122,   32,   40,   58,   95,  108,    9,   13,   48,   57,
+	   65,   90,   97,  122,   32,   40,   58,   95,  104,  114,    9,   13,
+	   48,   57,   65,   90,   97,  122,   32,   40,   58,   95,  101,    9,
+	   13,   48,   57,   65,   90,   97,  122,   32,   40,   58,   95,  110,
+	    9,   13,   48,   57,   65,   90,   97,  122,   32,   40,   58,   95,
+	  117,    9,   13,   48,   57,   65,   90,   97,  122,   32,   40,   58,
+	   95,  104,    9,   13,   48,   57,   65,   90,   97,  122,   32,   40,
+	   58,   95,  105,    9,   13,   48,   57,   65,   90,   97,  122,   32,
+	   40,   58,   95,  108,    9,   13,   48,   57,   65,   90,   97,  122,
+	   32,   95,   97,  108,  125,    9,   13,   48,   57,   65,   90,   98,
+	  122,   32,   40,   58,   95,  115,  125,    9,   13,   48,   57,   65,
+	   90,   97,  122,   32,   40,   58,   95,  101,  125,    9,   13,   48,
+	   57,   65,   90,   97,  122,   32,   40,   58,   95,    9,   13,   48,
+	   57,   65,   90,   97,  122,   32,   40,   58,   95,   97,  125,    9,
+	   13,   48,   57,   65,   90,   98,  122,   32,   40,   58,   95,  115,
+	  125,    9,   13,   48,   57,   65,   90,   97,  122,   32,   40,   58,
+	   95,  115,  125,    9,   13,   48,   57,   65,   90,   97,  122,   32,
+	   95,  108,  115,  125,    9,   13,   48,   57,   65,   90,   97,  122,
+	   32,   40,   58,   95,   97,  125,    9,   13,   48,   57,   65,   90,
+	   98,  122,   32,   40,   58,   95,   99,  125,    9,   13,   48,   57,
+	   65,   90,   97,  122,   32,   95,   97,  105,  125,    9,   13,   48,
+	   57,   65,   90,   98,  122,   32,   40,   58,   95,  108,  125,    9,
+	   13,   48,   57,   65,   90,   97,  122,   32,   40,   58,   95,  102,
+	  110,    9,   13,   48,   57,   65,   90,   97,  122,   32,   95,  125,
+	    9,   13,   48,   57,   65,   90,   97,  122,   32,   95,  102,  110,
+	  125,    9,   13,   48,   57,   65,   90,   97,  122,   32,   40,   58,
+	   95,  105,    9,   13,   48,   57,   65,   90,   97,  122,   32,   40,
+	   58,   95,  104,    9,   13,   48,   57,   65,   90,   97,  122,   32,
+	   40,   58,   95,  101,  125,    9,   13,   48,   57,   65,   90,   97,
+	  122,   32,   40,   58,   95,  114,  125,    9,   13,   48,   57,   65,
+	   90,   97,  122,   32,   40,   58,   95,  105,  125,    9,   13,   48,
+	   57,   65,   90,   97,  122,   32,   40,   58,   95,  116,  125,    9,
+	   13,   48,   57,   65,   90,   97,  122,   32,   40,   58,   95,  115,
+	  125,    9,   13,   48,   57,   65,   90,   97,  122,   32,   40,   58,
+	   95,  105,  125,    9,   13,   48,   57,   65,   90,   97,  122,   32,
+	   40,   58,   95,  115,  125,    9,   13,   48,   57,   65,   90,   97,
+	  122,   32,   40,   58,   95,  118,  125,    9,   13,   48,   57,   65,
+	   90,   97,  122,   32,   40,   58,   95,  111,  125,    9,   13,   48,
+	   57,   65,   90,   97,  122,   32,   40,   58,   95,  105,  125,    9,
+	   13,   48,   57,   65,   90,   97,  122,   32,   40,   58,   95,  100,
+	  125,    9,   13,   48,   57,   65,   90,   97,  122,   32,   95,  101,
+	  111,  125,    9,   13,   48,   57,   65,   90,   97,  122,   32,   40,
+	   58,   95,  116,  125,    9,   13,   48,   57,   65,   90,   97,  122,
+	   32,   40,   58,   95,  111,  125,    9,   13,   48,   57,   65,   90,
+	   97,  122,   32,   40,   58,   95,  112,  125,    9,   13,   48,   57,
+	   65,   90,   97,  122,   32,   95,  101,  111,  125,    9,   13,   48,
+	   57,   65,   90,   97,  122,   32,   40,   58,   95,  119,  125,    9,
+	   13,   48,   57,   65,   90,   97,  122,   32,   95,  102,  125,    9,
+	   13,   48,   57,   65,   90,   97,  122,   32,   95,  111,  125,    9,
+	   13,   48,   57,   65,   90,   97,  122,   32,   40,   58,   95,  111,
+	  125,    9,   13,   48,   57,   65,   90,   97,  122,   32,   40,   58,
+	   95,  108,  125,    9,   13,   48,   57,   65,   90,   97,  122,   32,
+	   95,  104,  114,  125,    9,   13,   48,   57,   65,   90,   97,  122,
+	   32,   40,   58,   95,  101,  125,    9,   13,   48,   57,   65,   90,
+	   97,  122,   32,   40,   58,   95,  110,  125,    9,   13,   48,   57,
+	   65,   90,   97,  122,   32,   40,   58,   95,  117,  125,    9,   13,
+	   48,   57,   65,   90,   97,  122,   32,   95,  104,  125,    9,   13,
+	   48,   57,   65,   90,   97,  122,   32,   40,   58,   95,  105,  125,
+	    9,   13,   48,   57,   65,   90,   97,  122,   32,   40,   58,   95,
+	  108,  125,    9,   13,   48,   57,   65,   90,   97,  122,   32,   95,
+	   97,  108,    9,   13,   48,   57,   65,   90,   98,  122,   32,   95,
+	  115,    9,   13,   48,   57,   65,   90,   97,  122,   32,   95,  101,
+	    9,   13,   48,   57,   65,   90,   97,  122,   95,   48,   57,   65,
+	   90,   97,  122,   32,   95,   97,    9,   13,   48,   57,   65,   90,
+	   98,  122,   32,   95,  115,    9,   13,   48,   57,   65,   90,   97,
+	  122,   32,   95,  115,    9,   13,   48,   57,   65,   90,   97,  122,
+	   32,   95,  108,  115,    9,   13,   48,   57,   65,   90,   97,  122,
+	   32,   95,   97,    9,   13,   48,   57,   65,   90,   98,  122,   32,
+	   95,   99,    9,   13,   48,   57,   65,   90,   97,  122,   32,   95,
+	   97,  105,    9,   13,   48,   57,   65,   90,   98,  122,   32,   95,
+	  108,    9,   13,   48,   57,   65,   90,   97,  122,   32,   95,  102,
+	  110,    9,   13,   48,   57,   65,   90,   97,  122,   95,  104,   48,
+	   57,   65,   90,   97,  122,   32,   95,  101,    9,   13,   48,   57,
+	   65,   90,   97,  122,   32,   95,  114,    9,   13,   48,   57,   65,
+	   90,   97,  122,   32,   95,  105,    9,   13,   48,   57,   65,   90,
+	   97,  122,   32,   95,  116,    9,   13,   48,   57,   65,   90,   97,
+	  122,   32,   95,  115,    9,   13,   48,   57,   65,   90,   97,  122,
+	   32,   95,  105,    9,   13,   48,   57,   65,   90,   97,  122,   32,
+	   95,  115,    9,   13,   48,   57,   65,   90,   97,  122,   32,   95,
+	  118,    9,   13,   48,   57,   65,   90,   97,  122,   32,   95,  111,
+	    9,   13,   48,   57,   65,   90,   97,  122,   32,   95,  105,    9,
+	   13,   48,   57,   65,   90,   97,  122,   32,   95,  100,    9,   13,
+	   48,   57,   65,   90,   97,  122,   32,   95,  101,  111,    9,   13,
+	   48,   57,   65,   90,   97,  122,   32,   95,  116,    9,   13,   48,
+	   57,   65,   90,   97,  122,   32,   95,  111,    9,   13,   48,   57,
+	   65,   90,   97,  122,   32,   95,  112,    9,   13,   48,   57,   65,
+	   90,   97,  122,   32,   95,  101,  111,    9,   13,   48,   57,   65,
+	   90,   97,  122,   32,   95,  119,    9,   13,   48,   57,   65,   90,
+	   97,  122,   32,   95,  102,    9,   13,   48,   57,   65,   90,   97,
+	  122,   32,   95,  111,    9,   13,   48,   57,   65,   90,   97,  122,
+	   32,   95,  111,    9,   13,   48,   57,   65,   90,   97,  122,   32,
+	   95,  108,    9,   13,   48,   57,   65,   90,   97,  122,   32,   95,
+	  104,  114,    9,   13,   48,   57,   65,   90,   97,  122,   32,   95,
+	  101,    9,   13,   48,   57,   65,   90,   97,  122,   32,   95,  110,
+	    9,   13,   48,   57,   65,   90,   97,  122,   32,   95,  117,    9,
+	   13,   48,   57,   65,   90,   97,  122,   32,   95,  104,    9,   13,
+	   48,   57,   65,   90,   97,  122,   32,   95,  105,    9,   13,   48,
+	   57,   65,   90,   97,  122,   32,   95,  108,    9,   13,   48,   57,
+	   65,   90,   97,  122,   32,   95,   97,  108,    9,   13,   48,   57,
+	   65,   90,   98,  122,   32,   95,  115,    9,   13,   48,   57,   65,
+	   90,   97,  122,   32,   95,  101,    9,   13,   48,   57,   65,   90,
+	   97,  122,   95,   48,   57,   65,   90,   97,  122,   32,   95,   97,
+	    9,   13,   48,   57,   65,   90,   98,  122,   32,   95,  115,    9,
+	   13,   48,   57,   65,   90,   97,  122,   32,   95,  115,    9,   13,
+	   48,   57,   65,   90,   97,  122,   32,   95,  108,  115,    9,   13,
+	   48,   57,   65,   90,   97,  122,   32,   95,   97,    9,   13,   48,
+	   57,   65,   90,   98,  122,   32,   95,   99,    9,   13,   48,   57,
+	   65,   90,   97,  122,   32,   95,   97,  105,    9,   13,   48,   57,
+	   65,   90,   98,  122,   32,   95,  108,    9,   13,   48,   57,   65,
+	   90,   97,  122,   32,   95,  102,  110,    9,   13,   48,   57,   65,
+	   90,   97,  122,   95,  104,   48,   57,   65,   90,   97,  122,   32,
+	   95,  101,    9,   13,   48,   57,   65,   90,   97,  122,   32,   95,
+	  114,    9,   13,   48,   57,   65,   90,   97,  122,   32,   95,  105,
+	    9,   13,   48,   57,   65,   90,   97,  122,   32,   95,  116,    9,
+	   13,   48,   57,   65,   90,   97,  122,   32,   95,  115,    9,   13,
+	   48,   57,   65,   90,   97,  122,   32,   95,  105,    9,   13,   48,
+	   57,   65,   90,   97,  122,   32,   95,  115,    9,   13,   48,   57,
+	   65,   90,   97,  122,   32,   95,  118,    9,   13,   48,   57,   65,
+	   90,   97,  122,   32,   95,  111,    9,   13,   48,   57,   65,   90,
+	   97,  122,   32,   95,  105,    9,   13,   48,   57,   65,   90,   97,
+	  122,   32,   95,  100,    9,   13,   48,   57,   65,   90,   97,  122,
+	   32,   95,  101,  111,    9,   13,   48,   57,   65,   90,   97,  122,
+	   32,   95,  116,    9,   13,   48,   57,   65,   90,   97,  122,   32,
+	   95,  111,    9,   13,   48,   57,   65,   90,   97,  122,   32,   95,
+	  112,    9,   13,   48,   57,   65,   90,   97,  122,   32,   95,  101,
+	  111,    9,   13,   48,   57,   65,   90,   97,  122,   32,   95,  119,
+	    9,   13,   48,   57,   65,   90,   97,  122,   32,   95,  102,    9,
+	   13,   48,   57,   65,   90,   97,  122,   32,   95,  111,    9,   13,
+	   48,   57,   65,   90,   97,  122,   32,   95,  111,    9,   13,   48,
+	   57,   65,   90,   97,  122,   32,   95,  108,    9,   13,   48,   57,
+	   65,   90,   97,  122,   32,   95,  104,  114,    9,   13,   48,   57,
+	   65,   90,   97,  122,   32,   95,  101,    9,   13,   48,   57,   65,
+	   90,   97,  122,   32,   95,  110,    9,   13,   48,   57,   65,   90,
+	   97,  122,   32,   95,  117,    9,   13,   48,   57,   65,   90,   97,
+	  122,   32,   95,  104,    9,   13,   48,   57,   65,   90,   97,  122,
+	   32,   95,  105,    9,   13,   48,   57,   65,   90,   97,  122,   32,
+	   95,  108,    9,   13,   48,   57,   65,   90,   97,  122,   32,   40,
+	   45,   99,    9,   13,   42,   45,  108,    0
 	};
-	private int yy_cmap[] = unpackFromString(1,130,
-"5:9,41,6,5,41,6,5:18,41,5,38,5:5,3,2,4,32,34,1,28,33,37:10,29,30,35,7,8,5,2" +
-"7,39:26,5:4,40,5,11,39,9,24,16,20,39,15,13,39:2,10,39,14,21,22,39,17,12,18," +
-"36,23,19,39:3,25,5,26,31,5,0:2")[0];
+}
 
-	private int yy_rmap[] = unpackFromString(1,93,
-"0,1,2,1,3,1:3,4,1:7,5,1:2,6,5,1:3,7:4,1:2,8,7:12,1:2,8,9,7,10,11,12,13,14,1" +
-"5,16,17,18,19,20,21,22,23,24,14,25,26,27,28,29,30,31,7,32,33,34,35,36,37,38" +
-",39,40,41,42,43,44,45,46,47,48,49,50,51,52")[0];
+private static final char _cool_lexer_trans_keys[] = init__cool_lexer_trans_keys_0();
 
-	private int yy_nxt[][] = unpackFromString(53,42,
-"1,2,3,4,5,6,7,8,6,46,50,71:2,53,56,71,73,71,75,71,59,61,77,47,71,9,10,11,12" +
-",13,14,15,16,17,18,19,71,20,21,71,6,7,-1:43,45,-1:35,20,-1:8,22,-1:45,23,-1" +
-":70,20,-1:5,28,-1:5,29,-1:43,24:16,-1:11,24:2,-1,24:2,-1:2,30:5,-1,30:35,-1" +
-":9,24,85,70,24:13,-1:11,24:2,-1,24:2,-1:10,24:9,31,24:6,-1:11,24:2,-1,24:2," +
-"-1,1,63,6,63:3,52,63:35,-1:9,24:7,48,24:4,72,24:3,-1:11,24:2,-1,24:2,-1:10," +
-"24:10,32,24:5,-1:11,24:2,-1,24:2,-1:2,52,-1,52,55,52:37,-1:9,24:3,89,24,92," +
-"24:5,25,24:4,-1:11,24:2,-1,24:2,-1:10,24:7,33,24:8,-1:11,24:2,-1,24:2,-1:2," +
-"52,43,52,55,52:37,-1:9,24:7,51,24:8,-1:11,24:2,-1,24:2,-1:10,24:13,34,24:2," +
-"-1:11,24:2,-1,24:2,-1,1,6:5,-1,6:31,44,6:3,-1:9,24:2,86,24,26,24:11,-1:11,2" +
-"4:2,-1,24:2,-1:10,24:7,35,24:8,-1:11,24:2,-1,24:2,-1:10,24:11,27,24:4,-1:11" +
-",24:2,-1,24:2,-1:10,36,24:15,-1:11,24:2,-1,24:2,-1:10,24:5,37,24:10,-1:11,2" +
-"4:2,-1,24:2,-1:10,24:7,38,24:8,-1:11,24:2,-1,24:2,-1:10,24,39,24:14,-1:11,2" +
-"4:2,-1,24:2,-1:10,24:3,40,24:12,-1:11,24:2,-1,24:2,-1:10,24:15,41,-1:11,24:" +
-"2,-1,24:2,-1:10,24:3,42,24:12,-1:11,24:2,-1,24:2,-1:10,24:3,54,24:12,-1:11," +
-"24:2,-1,24:2,-1:10,24:12,57,24:3,-1:11,24:2,-1,24:2,-1:10,24,74,24,76,24:12" +
-",-1:11,24:2,-1,24:2,-1:10,24:3,60,24:12,-1:11,24:2,-1,24:2,-1:10,24:6,78,24" +
-",79,24:7,-1:11,24:2,-1,24:2,-1:10,24:2,62,24:13,-1:11,24:2,-1,24:2,-1:10,24" +
-":12,80,24:3,-1:11,24:2,-1,24:2,-1:10,24:7,64,24:8,-1:11,24:2,-1,24:2,-1:10," +
-"24:16,-1:11,65,24,-1,24:2,-1:10,24:12,66,24:3,-1:11,24:2,-1,24:2,-1:10,24:3" +
-",67,24:12,-1:11,24:2,-1,24:2,-1:10,24:3,65,24:12,-1:11,24:2,-1,24:2,-1:10,2" +
-"4:4,68,24:11,-1:11,24:2,-1,24:2,-1:10,24:9,69,24:6,-1:11,24:2,-1,24:2,-1:10" +
-",24:2,81,24:13,-1:11,24:2,-1,24:2,-1:10,24,82,24:14,-1:11,24:2,-1,24:2,-1:1" +
-"0,24:12,83,24:3,-1:11,24:2,-1,24:2,-1:10,24:4,84,24:11,-1:11,24:2,-1,24:2,-" +
-"1:10,24:14,87,24,-1:11,24:2,-1,24:2,-1:10,24:8,88,24:7,-1:11,24:2,-1,24:2,-" +
-"1:10,24:7,90,24:8,-1:11,24:2,-1,24:2,-1:10,24:6,91,24:9,-1:11,24:2,-1,24:2," +
-"-1");
 
-	public java_cup.runtime.Symbol next_token ()
-		throws java.io.IOException {
-		int yy_lookahead;
-		int yy_anchor = YY_NO_ANCHOR;
-		int yy_state = yy_state_dtrans[yy_lexical_state];
-		int yy_next_state = YY_NO_STATE;
-		int yy_last_accept_state = YY_NO_STATE;
-		boolean yy_initial = true;
-		int yy_this_accept;
+private static byte[] init__cool_lexer_single_lengths_0()
+{
+	return new byte [] {
+	    1,    1,    2,    2,    1,    1,    1,    1,   11,    2,    2,    3,
+	    1,    1,    1,    1,    1,    1,    1,    1,   11,    2,    2,   12,
+	    4,    2,   11,    3,    5,   13,    6,   12,    1,   21,    2,    1,
+	    1,    1,    1,    1,    1,    1,    1,    1,    1,    2,    1,    1,
+	    2,    4,    3,    3,    1,    3,    3,    3,    4,    3,    3,    4,
+	    3,    3,    3,    4,    2,    3,    3,    3,    3,    3,    3,    3,
+	    3,    3,    3,    3,    4,    3,    3,    3,    4,    3,    3,    2,
+	    3,    3,    3,    3,    4,    3,    3,    3,    3,    3,    3,    1,
+	   10,    3,    2,   11,    3,    5,    4,    4,    1,    4,    4,    4,
+	    5,    4,    4,    5,    4,    5,    2,    4,    4,    4,    4,    4,
+	    4,    4,    4,    4,    4,    4,    5,    4,    4,    4,    5,    4,
+	    4,    4,    4,    4,    5,    4,    4,    4,    4,    4,    4,    5,
+	    4,    4,    1,    4,    4,    4,    5,    4,    4,    5,    4,    5,
+	    2,    4,    4,    4,    4,    4,    4,    4,    4,    4,    4,    4,
+	    5,    4,    4,    4,    5,    4,    4,    4,    4,    4,    5,    4,
+	    4,    4,    4,    4,    4,    5,    5,    1,    5,    5,    5,    6,
+	    5,    5,    6,    5,    6,    2,    5,    5,    5,    5,    5,    5,
+	    5,    5,    5,    5,    5,    6,    5,    5,    5,    6,    5,    5,
+	    5,    5,    5,    6,    5,    5,    5,    5,    5,    5,    5,    6,
+	    6,    4,    6,    6,    6,    5,    6,    6,    5,    6,    6,    3,
+	    5,    5,    5,    6,    6,    6,    6,    6,    6,    6,    6,    6,
+	    6,    6,    5,    6,    6,    6,    5,    6,    4,    4,    6,    6,
+	    5,    6,    6,    6,    4,    6,    6,    4,    3,    3,    1,    3,
+	    3,    3,    4,    3,    3,    4,    3,    4,    2,    3,    3,    3,
+	    3,    3,    3,    3,    3,    3,    3,    3,    4,    3,    3,    3,
+	    4,    3,    3,    3,    3,    3,    4,    3,    3,    3,    3,    3,
+	    3,    4,    3,    3,    1,    3,    3,    3,    4,    3,    3,    4,
+	    3,    4,    2,    3,    3,    3,    3,    3,    3,    3,    3,    3,
+	    3,    3,    4,    3,    3,    3,    4,    3,    3,    3,    3,    3,
+	    4,    3,    3,    3,    3,    3,    3,    4,    1,    1,    0,    1
+	};
+}
 
-		yy_mark_start();
-		yy_this_accept = yy_acpt[yy_state];
-		if (YY_NOT_ACCEPT != yy_this_accept) {
-			yy_last_accept_state = yy_state;
-			yy_mark_end();
-		}
-		while (true) {
-			if (yy_initial && yy_at_bol) yy_lookahead = YY_BOL;
-			else yy_lookahead = yy_advance();
-			yy_next_state = YY_F;
-			yy_next_state = yy_nxt[yy_rmap[yy_state]][yy_cmap[yy_lookahead]];
-			if (YY_EOF == yy_lookahead && true == yy_initial) {
+private static final byte _cool_lexer_single_lengths[] = init__cool_lexer_single_lengths_0();
 
-/*  Stuff enclosed in %eofval{ %eofval} specifies java code that is
- *  executed when end-of-file is reached.  If you use multiple lexical
- *  states and want to do something special if an EOF is encountered in
- *  one of those states, place your code in the switch statement.
- *  Ultimately, you should return the EOF symbol, or your lexer won't
- *  work.  */
-    switch(yy_lexical_state) {
-        case YYINITIAL:
-            /* nothing special to do in the initial state */
-            break;
-        /* If necessary, add code for other states here, e.g:
-        case COMMENT:
-            ...
-            break;
-        */
-    }
-    return new Symbol(TokenConstants.EOF);
-			}
-			if (YY_F != yy_next_state) {
-				yy_state = yy_next_state;
-				yy_initial = false;
-				yy_this_accept = yy_acpt[yy_state];
-				if (YY_NOT_ACCEPT != yy_this_accept) {
-					yy_last_accept_state = yy_state;
-					yy_mark_end();
-				}
-			}
-			else {
-				if (YY_NO_STATE == yy_last_accept_state) {
-					throw (new Error("Lexical Error: Unmatched Input."));
-				}
-				else {
-					yy_anchor = yy_acpt[yy_last_accept_state];
-					if (0 != (YY_END & yy_anchor)) {
-						yy_move_end();
-					}
-					yy_to_mark();
-					switch (yy_last_accept_state) {
-					case 1:
-						
-					case -2:
-						break;
-					case 2:
-						{ return new Symbol(TokenConstants.MINUS); }
-					case -3:
-						break;
-					case 3:
-						{ return new Symbol(TokenConstants.RPAREN); }
-					case -4:
-						break;
-					case 4:
-						{ return new Symbol(TokenConstants.LPAREN); }
-					case -5:
-						break;
-					case 5:
-						{ return new Symbol(TokenConstants.MULT); }
-					case -6:
-						break;
-					case 6:
-						{ System.err.println("LEXER BUG - UNMATCHED: " +
-                                    yytext()); }
-					case -7:
-						break;
-					case 7:
-						{ /* Ignore whitespace */ }
-					case -8:
-						break;
-					case 8:
-						{ return new Symbol(TokenConstants.EQ); }
-					case -9:
-						break;
-					case 9:
-						{ return new Symbol(TokenConstants.LBRACE); }
-					case -10:
-						break;
-					case 10:
-						{ return new Symbol(TokenConstants.RBRACE); }
-					case -11:
-						break;
-					case 11:
-						{ return new Symbol(TokenConstants.AT); }
-					case -12:
-						break;
-					case 12:
-						{ return new Symbol(TokenConstants.DOT); }
-					case -13:
-						break;
-					case 13:
-						{ return new Symbol(TokenConstants.COLON); }
-					case -14:
-						break;
-					case 14:
-						{ return new Symbol(TokenConstants.SEMI); }
-					case -15:
-						break;
-					case 15:
-						{ return new Symbol(TokenConstants.NEG); }
-					case -16:
-						break;
-					case 16:
-						{ return new Symbol(TokenConstants.PLUS); }
-					case -17:
-						break;
-					case 17:
-						{ return new Symbol(TokenConstants.DIV); }
-					case -18:
-						break;
-					case 18:
-						{ return new Symbol(TokenConstants.COMMA); }
-					case -19:
-						break;
-					case 19:
-						{ return new Symbol(TokenConstants.LT); }
-					case -20:
-						break;
-					case 20:
-						{
-                                    Integer i = Integer.parseInt(yytext());
-                                    AbstractSymbol sym = AbstractTable.inttable.addInt(i);
-                                    return new Symbol(TokenConstants.INT_CONST, sym);
-                                  }
-					case -21:
-						break;
-					case 21:
-						{ yybegin(STRING); }
-					case -22:
-						break;
-					case 22:
-						{ yybegin(COMMENT); }
-					case -23:
-						break;
-					case 23:
-						{ return new Symbol(TokenConstants.DARROW); }
-					case -24:
-						break;
-					case 24:
-						{
-                                    AbstractSymbol sym = AbstractTable.idtable.addString(yytext());
-                                    return new Symbol(TokenConstants.OBJECTID, sym);
-                                  }
-					case -25:
-						break;
-					case 25:
-						{ return new Symbol(TokenConstants.IF); }
-					case -26:
-						break;
-					case 26:
-						{ return new Symbol(TokenConstants.FI); }
-					case -27:
-						break;
-					case 27:
-						{ return new Symbol(TokenConstants.OF); }
-					case -28:
-						break;
-					case 28:
-						{ return new Symbol(TokenConstants.ASSIGN); }
-					case -29:
-						break;
-					case 29:
-						{ return new Symbol(TokenConstants.LE); }
-					case -30:
-						break;
-					case 30:
-						{ /* Comments */ }
-					case -31:
-						break;
-					case 31:
-						{ return new Symbol(TokenConstants.LET); }
-					case -32:
-						break;
-					case 32:
-						{ return new Symbol(TokenConstants.NEW); }
-					case -33:
-						break;
-					case 33:
-						{ return new Symbol(TokenConstants.CASE); }
-					case -34:
-						break;
-					case 34:
-						{ return new Symbol(TokenConstants.LOOP); }
-					case -35:
-						break;
-					case 35:
-						{ return new Symbol(TokenConstants.ELSE); }
-					case -36:
-						break;
-					case 36:
-						{ return new Symbol(TokenConstants.ESAC); }
-					case -37:
-						break;
-					case 37:
-						{ return new Symbol(TokenConstants.THEN); }
-					case -38:
-						break;
-					case 38:
-						{
-                                    String s = yytext();
-                                    if (s == "true") {
-                                      return new Symbol(TokenConstants.BOOL_CONST, true);
-                                    } else {
-                                      return new Symbol(TokenConstants.BOOL_CONST, false);
-                                    }
-                                  }
-					case -39:
-						break;
-					case 39:
-						{ return new Symbol(TokenConstants.POOL); }
-					case -40:
-						break;
-					case 40:
-						{ return new Symbol(TokenConstants.CLASS); }
-					case -41:
-						break;
-					case 41:
-						{ return new Symbol(TokenConstants.ISVOID); }
-					case -42:
-						break;
-					case 42:
-						{ return new Symbol(TokenConstants.INHERITS); }
-					case -43:
-						break;
-					case 43:
-						{ yybegin(YYINITIAL); }
-					case -44:
-						break;
-					case 44:
-						{
-                                    String s = yytext();
-                                    System.out.println(s);
-                                    if (s.charAt(s.length() - 1) != '\\') {
-                                      AbstractSymbol sym = AbstractTable.stringtable.addString(s);
-                                      yybegin(YYINITIAL);
-                                      return new Symbol(TokenConstants.STR_CONST, sym);
-                                    }
-                                  }
-					case -45:
-						break;
-					case 46:
-						{ System.err.println("LEXER BUG - UNMATCHED: " +
-                                    yytext()); }
-					case -46:
-						break;
-					case 47:
-						{ /* Ignore whitespace */ }
-					case -47:
-						break;
-					case 48:
-						{
-                                    AbstractSymbol sym = AbstractTable.idtable.addString(yytext());
-                                    return new Symbol(TokenConstants.OBJECTID, sym);
-                                  }
-					case -48:
-						break;
-					case 50:
-						{ System.err.println("LEXER BUG - UNMATCHED: " +
-                                    yytext()); }
-					case -49:
-						break;
-					case 51:
-						{
-                                    AbstractSymbol sym = AbstractTable.idtable.addString(yytext());
-                                    return new Symbol(TokenConstants.OBJECTID, sym);
-                                  }
-					case -50:
-						break;
-					case 53:
-						{ System.err.println("LEXER BUG - UNMATCHED: " +
-                                    yytext()); }
-					case -51:
-						break;
-					case 54:
-						{
-                                    AbstractSymbol sym = AbstractTable.idtable.addString(yytext());
-                                    return new Symbol(TokenConstants.OBJECTID, sym);
-                                  }
-					case -52:
-						break;
-					case 56:
-						{ System.err.println("LEXER BUG - UNMATCHED: " +
-                                    yytext()); }
-					case -53:
-						break;
-					case 57:
-						{
-                                    AbstractSymbol sym = AbstractTable.idtable.addString(yytext());
-                                    return new Symbol(TokenConstants.OBJECTID, sym);
-                                  }
-					case -54:
-						break;
-					case 59:
-						{ System.err.println("LEXER BUG - UNMATCHED: " +
-                                    yytext()); }
-					case -55:
-						break;
-					case 60:
-						{
-                                    AbstractSymbol sym = AbstractTable.idtable.addString(yytext());
-                                    return new Symbol(TokenConstants.OBJECTID, sym);
-                                  }
-					case -56:
-						break;
-					case 61:
-						{ System.err.println("LEXER BUG - UNMATCHED: " +
-                                    yytext()); }
-					case -57:
-						break;
-					case 62:
-						{
-                                    AbstractSymbol sym = AbstractTable.idtable.addString(yytext());
-                                    return new Symbol(TokenConstants.OBJECTID, sym);
-                                  }
-					case -58:
-						break;
-					case 63:
-						{ System.err.println("LEXER BUG - UNMATCHED: " +
-                                    yytext()); }
-					case -59:
-						break;
-					case 64:
-						{
-                                    AbstractSymbol sym = AbstractTable.idtable.addString(yytext());
-                                    return new Symbol(TokenConstants.OBJECTID, sym);
-                                  }
-					case -60:
-						break;
-					case 65:
-						{
-                                    AbstractSymbol sym = AbstractTable.idtable.addString(yytext());
-                                    return new Symbol(TokenConstants.OBJECTID, sym);
-                                  }
-					case -61:
-						break;
-					case 66:
-						{
-                                    AbstractSymbol sym = AbstractTable.idtable.addString(yytext());
-                                    return new Symbol(TokenConstants.OBJECTID, sym);
-                                  }
-					case -62:
-						break;
-					case 67:
-						{
-                                    AbstractSymbol sym = AbstractTable.idtable.addString(yytext());
-                                    return new Symbol(TokenConstants.OBJECTID, sym);
-                                  }
-					case -63:
-						break;
-					case 68:
-						{
-                                    AbstractSymbol sym = AbstractTable.idtable.addString(yytext());
-                                    return new Symbol(TokenConstants.OBJECTID, sym);
-                                  }
-					case -64:
-						break;
-					case 69:
-						{
-                                    AbstractSymbol sym = AbstractTable.idtable.addString(yytext());
-                                    return new Symbol(TokenConstants.OBJECTID, sym);
-                                  }
-					case -65:
-						break;
-					case 70:
-						{
-                                    AbstractSymbol sym = AbstractTable.idtable.addString(yytext());
-                                    return new Symbol(TokenConstants.OBJECTID, sym);
-                                  }
-					case -66:
-						break;
-					case 71:
-						{ System.err.println("LEXER BUG - UNMATCHED: " +
-                                    yytext()); }
-					case -67:
-						break;
-					case 72:
-						{
-                                    AbstractSymbol sym = AbstractTable.idtable.addString(yytext());
-                                    return new Symbol(TokenConstants.OBJECTID, sym);
-                                  }
-					case -68:
-						break;
-					case 73:
-						{ System.err.println("LEXER BUG - UNMATCHED: " +
-                                    yytext()); }
-					case -69:
-						break;
-					case 74:
-						{
-                                    AbstractSymbol sym = AbstractTable.idtable.addString(yytext());
-                                    return new Symbol(TokenConstants.OBJECTID, sym);
-                                  }
-					case -70:
-						break;
-					case 75:
-						{ System.err.println("LEXER BUG - UNMATCHED: " +
-                                    yytext()); }
-					case -71:
-						break;
-					case 76:
-						{
-                                    AbstractSymbol sym = AbstractTable.idtable.addString(yytext());
-                                    return new Symbol(TokenConstants.OBJECTID, sym);
-                                  }
-					case -72:
-						break;
-					case 77:
-						{ System.err.println("LEXER BUG - UNMATCHED: " +
-                                    yytext()); }
-					case -73:
-						break;
-					case 78:
-						{
-                                    AbstractSymbol sym = AbstractTable.idtable.addString(yytext());
-                                    return new Symbol(TokenConstants.OBJECTID, sym);
-                                  }
-					case -74:
-						break;
-					case 79:
-						{
-                                    AbstractSymbol sym = AbstractTable.idtable.addString(yytext());
-                                    return new Symbol(TokenConstants.OBJECTID, sym);
-                                  }
-					case -75:
-						break;
-					case 80:
-						{
-                                    AbstractSymbol sym = AbstractTable.idtable.addString(yytext());
-                                    return new Symbol(TokenConstants.OBJECTID, sym);
-                                  }
-					case -76:
-						break;
-					case 81:
-						{
-                                    AbstractSymbol sym = AbstractTable.idtable.addString(yytext());
-                                    return new Symbol(TokenConstants.OBJECTID, sym);
-                                  }
-					case -77:
-						break;
-					case 82:
-						{
-                                    AbstractSymbol sym = AbstractTable.idtable.addString(yytext());
-                                    return new Symbol(TokenConstants.OBJECTID, sym);
-                                  }
-					case -78:
-						break;
-					case 83:
-						{
-                                    AbstractSymbol sym = AbstractTable.idtable.addString(yytext());
-                                    return new Symbol(TokenConstants.OBJECTID, sym);
-                                  }
-					case -79:
-						break;
-					case 84:
-						{
-                                    AbstractSymbol sym = AbstractTable.idtable.addString(yytext());
-                                    return new Symbol(TokenConstants.OBJECTID, sym);
-                                  }
-					case -80:
-						break;
-					case 85:
-						{
-                                    AbstractSymbol sym = AbstractTable.idtable.addString(yytext());
-                                    return new Symbol(TokenConstants.OBJECTID, sym);
-                                  }
-					case -81:
-						break;
-					case 86:
-						{
-                                    AbstractSymbol sym = AbstractTable.idtable.addString(yytext());
-                                    return new Symbol(TokenConstants.OBJECTID, sym);
-                                  }
-					case -82:
-						break;
-					case 87:
-						{
-                                    AbstractSymbol sym = AbstractTable.idtable.addString(yytext());
-                                    return new Symbol(TokenConstants.OBJECTID, sym);
-                                  }
-					case -83:
-						break;
-					case 88:
-						{
-                                    AbstractSymbol sym = AbstractTable.idtable.addString(yytext());
-                                    return new Symbol(TokenConstants.OBJECTID, sym);
-                                  }
-					case -84:
-						break;
-					case 89:
-						{
-                                    AbstractSymbol sym = AbstractTable.idtable.addString(yytext());
-                                    return new Symbol(TokenConstants.OBJECTID, sym);
-                                  }
-					case -85:
-						break;
-					case 90:
-						{
-                                    AbstractSymbol sym = AbstractTable.idtable.addString(yytext());
-                                    return new Symbol(TokenConstants.OBJECTID, sym);
-                                  }
-					case -86:
-						break;
-					case 91:
-						{
-                                    AbstractSymbol sym = AbstractTable.idtable.addString(yytext());
-                                    return new Symbol(TokenConstants.OBJECTID, sym);
-                                  }
-					case -87:
-						break;
-					case 92:
-						{
-                                    AbstractSymbol sym = AbstractTable.idtable.addString(yytext());
-                                    return new Symbol(TokenConstants.OBJECTID, sym);
-                                  }
-					case -88:
-						break;
-					default:
-						yy_error(YY_E_INTERNAL,false);
-					case -1:
-					}
-					yy_initial = true;
-					yy_state = yy_state_dtrans[yy_lexical_state];
-					yy_next_state = YY_NO_STATE;
-					yy_last_accept_state = YY_NO_STATE;
-					yy_mark_start();
-					yy_this_accept = yy_acpt[yy_state];
-					if (YY_NOT_ACCEPT != yy_this_accept) {
-						yy_last_accept_state = yy_state;
-						yy_mark_end();
-					}
-				}
-			}
-		}
-	}
+
+private static byte[] init__cool_lexer_range_lengths_0()
+{
+	return new byte [] {
+	    0,    0,    0,    0,    0,    0,    0,    1,    3,    4,    1,    1,
+	    0,    0,    0,    0,    0,    0,    0,    1,    3,    4,    1,    3,
+	    4,    1,    3,    4,    4,    3,    4,    2,    0,    4,    1,    0,
+	    0,    0,    0,    0,    0,    0,    0,    0,    1,    0,    0,    0,
+	    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,
+	    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,
+	    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,
+	    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    0,
+	    2,    4,    1,    3,    3,    3,    3,    3,    3,    3,    3,    3,
+	    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,
+	    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,
+	    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    4,
+	    4,    4,    3,    4,    4,    4,    4,    4,    4,    4,    4,    4,
+	    3,    4,    4,    4,    4,    4,    4,    4,    4,    4,    4,    4,
+	    4,    4,    4,    4,    4,    4,    4,    4,    4,    4,    4,    4,
+	    4,    4,    4,    4,    4,    4,    4,    3,    4,    4,    4,    4,
+	    4,    4,    4,    4,    4,    3,    4,    4,    4,    4,    4,    4,
+	    4,    4,    4,    4,    4,    4,    4,    4,    4,    4,    4,    4,
+	    4,    4,    4,    4,    4,    4,    4,    4,    4,    4,    4,    4,
+	    4,    4,    4,    4,    4,    4,    4,    4,    4,    4,    4,    4,
+	    4,    4,    4,    4,    4,    4,    4,    4,    4,    4,    4,    4,
+	    4,    4,    4,    4,    4,    4,    4,    4,    4,    4,    4,    4,
+	    4,    4,    4,    4,    4,    4,    4,    4,    4,    4,    3,    4,
+	    4,    4,    4,    4,    4,    4,    4,    4,    3,    4,    4,    4,
+	    4,    4,    4,    4,    4,    4,    4,    4,    4,    4,    4,    4,
+	    4,    4,    4,    4,    4,    4,    4,    4,    4,    4,    4,    4,
+	    4,    4,    4,    4,    3,    4,    4,    4,    4,    4,    4,    4,
+	    4,    4,    3,    4,    4,    4,    4,    4,    4,    4,    4,    4,
+	    4,    4,    4,    4,    4,    4,    4,    4,    4,    4,    4,    4,
+	    4,    4,    4,    4,    4,    4,    4,    1,    0,    0,    0,    0
+	};
+}
+
+private static final byte _cool_lexer_range_lengths[] = init__cool_lexer_range_lengths_0();
+
+
+private static short[] init__cool_lexer_index_offsets_0()
+{
+	return new short [] {
+	    0,    2,    4,    7,   10,   12,   14,   16,   19,   34,   41,   45,
+	   50,   52,   54,   56,   58,   60,   62,   64,   67,   82,   89,   93,
+	  109,  118,  122,  137,  145,  155,  172,  183,  198,  200,  226,  230,
+	  232,  234,  236,  238,  240,  242,  244,  246,  248,  251,  254,  256,
+	  258,  264,  272,  279,  286,  291,  298,  305,  312,  320,  327,  334,
+	  342,  349,  356,  363,  371,  377,  384,  391,  398,  405,  412,  419,
+	  426,  433,  440,  447,  454,  462,  469,  476,  483,  491,  498,  505,
+	  511,  518,  525,  532,  539,  547,  554,  561,  568,  575,  582,  589,
+	  591,  604,  612,  616,  631,  638,  647,  655,  663,  668,  676,  684,
+	  692,  701,  709,  717,  726,  734,  743,  749,  757,  765,  773,  781,
+	  789,  797,  805,  813,  821,  829,  837,  846,  854,  862,  870,  879,
+	  887,  895,  903,  911,  919,  928,  936,  944,  952,  960,  968,  976,
+	  986,  995, 1004, 1009, 1018, 1027, 1036, 1046, 1055, 1064, 1074, 1083,
+	 1093, 1099, 1108, 1117, 1126, 1135, 1144, 1153, 1162, 1171, 1180, 1189,
+	 1198, 1208, 1217, 1226, 1235, 1245, 1254, 1263, 1272, 1281, 1290, 1300,
+	 1309, 1318, 1327, 1336, 1345, 1354, 1364, 1374, 1379, 1389, 1399, 1409,
+	 1420, 1430, 1440, 1451, 1461, 1472, 1478, 1488, 1498, 1508, 1518, 1528,
+	 1538, 1548, 1558, 1568, 1578, 1588, 1599, 1609, 1619, 1629, 1640, 1650,
+	 1660, 1670, 1680, 1690, 1701, 1711, 1721, 1731, 1741, 1751, 1761, 1771,
+	 1782, 1793, 1802, 1813, 1824, 1835, 1845, 1856, 1867, 1877, 1888, 1899,
+	 1907, 1917, 1927, 1937, 1948, 1959, 1970, 1981, 1992, 2003, 2014, 2025,
+	 2036, 2047, 2058, 2068, 2079, 2090, 2101, 2111, 2122, 2131, 2140, 2151,
+	 2162, 2172, 2183, 2194, 2205, 2214, 2225, 2236, 2245, 2253, 2261, 2266,
+	 2274, 2282, 2290, 2299, 2307, 2315, 2324, 2332, 2341, 2347, 2355, 2363,
+	 2371, 2379, 2387, 2395, 2403, 2411, 2419, 2427, 2435, 2444, 2452, 2460,
+	 2468, 2477, 2485, 2493, 2501, 2509, 2517, 2526, 2534, 2542, 2550, 2558,
+	 2566, 2574, 2583, 2591, 2599, 2604, 2612, 2620, 2628, 2637, 2645, 2653,
+	 2662, 2670, 2679, 2685, 2693, 2701, 2709, 2717, 2725, 2733, 2741, 2749,
+	 2757, 2765, 2773, 2782, 2790, 2798, 2806, 2815, 2823, 2831, 2839, 2847,
+	 2855, 2864, 2872, 2880, 2888, 2896, 2904, 2912, 2918, 2920, 2922, 2923
+	};
+}
+
+private static final short _cool_lexer_index_offsets[] = init__cool_lexer_index_offsets_0();
+
+
+private static short[] init__cool_lexer_indicies_0()
+{
+	return new short [] {
+	    2,    1,    3,    1,    4,    3,    1,    0,    3,    1,    5,    0,
+	    6,    0,    7,    0,    8,    8,    0,    8,   10,   11,   12,   13,
+	   14,   15,   16,   17,   18,   19,    8,    9,    9,    0,   20,   21,
+	   20,   21,   21,   21,    0,   22,   23,   22,    0,   22,   23,   24,
+	   22,    0,   25,    0,   26,    0,   27,    0,   28,    0,   29,    0,
+	   30,    0,   31,    0,   32,   32,    0,   32,   34,   35,   36,   37,
+	   38,   39,   40,   41,   42,   43,   32,   33,   33,    0,   44,   45,
+	   44,   45,   45,   45,    0,   46,   24,   46,    0,   24,   48,   49,
+	   50,   51,   52,   53,   54,   55,   56,   57,   58,   24,   47,   47,
+	    0,   59,   60,   62,   61,   59,   61,   61,   61,    0,   63,   64,
+	   63,    0,   64,   66,   67,   68,   69,   70,   71,   72,   73,   74,
+	   75,   64,   65,   65,    0,   76,   77,   79,   76,   77,   78,   78,
+	    0,   80,   60,   62,   81,   79,   80,   81,   78,   78,    0,   82,
+	   64,   48,   49,   50,   51,   52,   53,   54,   55,   56,   57,   58,
+	   82,   47,   47,    0,   59,   60,   62,   61,   83,   84,   59,   61,
+	   61,   61,    0,   85,   86,   88,   89,   90,   91,   92,   93,   94,
+	   95,   96,   97,   87,   87,    0,   98,    0,   99,  100,  101,  102,
+	  103,  104,  105,  106,  108,  109,  111,  112,  113,  114,  115,  116,
+	  117,  118,  119,  120,  121,   99,  107,  110,  110,    0,   99,   24,
+	   99,    0,    0,  122,  123,    0,   24,    0,  124,    0,  125,    0,
+	  126,    0,  127,    0,  128,    0,  129,    0,   24,  107,    0,  130,
+	  131,    0,  132,    0,  133,    0,  134,   24,  134,  134,  134,    0,
+	  134,  135,  136,   24,  134,  134,  134,    0,  134,  137,   24,  134,
+	  134,  134,    0,  134,  138,   24,  134,  134,  134,    0,  134,  134,
+	  134,  134,    0,  134,  139,   24,  134,  134,  134,    0,  134,  140,
+	   24,  134,  134,  134,    0,  134,  138,   24,  134,  134,  134,    0,
+	  134,  135,  141,   24,  134,  134,  134,    0,  134,  142,   24,  134,
+	  134,  134,    0,  134,  138,   24,  134,  134,  134,    0,  134,  143,
+	  138,   24,  134,  134,  134,    0,  134,  144,   24,  134,  134,  134,
+	    0,  134,  145,   24,  134,  134,  134,    0,  134,  146,   24,  134,
+	  134,  134,    0,  134,  138,  147,   24,  134,  134,  134,    0,  134,
+	  148,  134,  134,  134,    0,  134,  149,   24,  134,  134,  134,    0,
+	  134,  150,   24,  134,  134,  134,    0,  134,  151,   24,  134,  134,
+	  134,    0,  134,  152,   24,  134,  134,  134,    0,  134,  153,   24,
+	  134,  134,  134,    0,  134,  154,   24,  134,  134,  134,    0,  134,
+	  155,   24,  134,  134,  134,    0,  134,  156,   24,  134,  134,  134,
+	    0,  134,  157,   24,  134,  134,  134,    0,  134,  158,   24,  134,
+	  134,  134,    0,  134,  138,   24,  134,  134,  134,    0,  134,  159,
+	  160,   24,  134,  134,  134,    0,  134,  138,   24,  134,  134,  134,
+	    0,  134,  161,   24,  134,  134,  134,    0,  134,  138,   24,  134,
+	  134,  134,    0,  134,  162,  163,   24,  134,  134,  134,    0,  134,
+	  138,   24,  134,  134,  134,    0,  134,  164,   24,  134,  134,  134,
+	    0,  134,  165,  134,  134,  134,    0,  134,  138,   24,  134,  134,
+	  134,    0,  134,  166,   24,  134,  134,  134,    0,  134,  167,   24,
+	  134,  134,  134,    0,  134,  138,   24,  134,  134,  134,    0,  134,
+	  168,  169,   24,  134,  134,  134,    0,  134,  170,   24,  134,  134,
+	  134,    0,  134,  138,   24,  134,  134,  134,    0,  134,  145,   24,
+	  134,  134,  134,    0,  134,  171,   24,  134,  134,  134,    0,  134,
+	  172,   24,  134,  134,  134,    0,  134,  137,   24,  134,  134,  134,
+	    0,  173,    0,   88,   89,   90,   91,   92,   93,   94,   95,   96,
+	   97,   87,   87,    0,  174,  176,  175,  174,  175,  175,  175,    0,
+	  177,  178,  177,    0,  178,  180,  181,  182,  183,  184,  185,  186,
+	  187,  188,  189,  178,  179,  179,    0,  190,  191,  192,  192,  192,
+	  192,    0,  190,  191,  192,  193,  194,  192,  192,  192,    0,  190,
+	  191,  192,  195,  192,  192,  192,    0,  190,  191,  192,  196,  192,
+	  192,  192,    0,  192,  192,  192,  192,    0,  190,  191,  192,  197,
+	  192,  192,  192,    0,  190,  191,  192,  198,  192,  192,  192,    0,
+	  190,  191,  192,  196,  192,  192,  192,    0,  190,  191,  192,  193,
+	  199,  192,  192,  192,    0,  190,  191,  192,  200,  192,  192,  192,
+	    0,  190,  191,  192,  196,  192,  192,  192,    0,  190,  191,  192,
+	  201,  196,  192,  192,  192,    0,  190,  191,  192,  193,  192,  192,
+	  192,    0,  190,  191,  192,  196,  202,  192,  192,  192,    0,  192,
+	  203,  192,  192,  192,    0,  190,  191,  192,  204,  192,  192,  192,
+	    0,  190,  191,  192,  205,  192,  192,  192,    0,  190,  191,  192,
+	  206,  192,  192,  192,    0,  190,  191,  192,  207,  192,  192,  192,
+	    0,  190,  191,  192,  208,  192,  192,  192,    0,  190,  191,  192,
+	  209,  192,  192,  192,    0,  190,  191,  192,  210,  192,  192,  192,
+	    0,  190,  191,  192,  211,  192,  192,  192,    0,  190,  191,  192,
+	  212,  192,  192,  192,    0,  190,  191,  192,  213,  192,  192,  192,
+	    0,  190,  191,  192,  196,  192,  192,  192,    0,  190,  191,  192,
+	  214,  215,  192,  192,  192,    0,  190,  191,  192,  196,  192,  192,
+	  192,    0,  190,  191,  192,  216,  192,  192,  192,    0,  190,  191,
+	  192,  196,  192,  192,  192,    0,  190,  191,  192,  217,  214,  192,
+	  192,  192,    0,  190,  191,  192,  196,  192,  192,  192,    0,  190,
+	  191,  192,  196,  192,  192,  192,    0,  190,  191,  192,  218,  192,
+	  192,  192,    0,  190,  191,  192,  219,  192,  192,  192,    0,  190,
+	  191,  192,  196,  192,  192,  192,    0,  190,  191,  192,  220,  221,
+	  192,  192,  192,    0,  190,  191,  192,  222,  192,  192,  192,    0,
+	  190,  191,  192,  196,  192,  192,  192,    0,  190,  191,  192,  195,
+	  192,  192,  192,    0,  190,  191,  192,  223,  192,  192,  192,    0,
+	  190,  191,  192,  224,  192,  192,  192,    0,  190,  191,  192,  195,
+	  192,  192,  192,    0,  174,  176,  175,  225,  226,  174,  175,  175,
+	  175,    0,  174,  176,  175,  227,  174,  175,  175,  175,    0,  174,
+	  176,  175,  228,  174,  175,  175,  175,    0,  175,  175,  175,  175,
+	    0,  174,  176,  175,  229,  174,  175,  175,  175,    0,  174,  176,
+	  175,  230,  174,  175,  175,  175,    0,  174,  176,  175,  228,  174,
+	  175,  175,  175,    0,  174,  176,  175,  225,  231,  174,  175,  175,
+	  175,    0,  174,  176,  175,  232,  174,  175,  175,  175,    0,  174,
+	  176,  175,  228,  174,  175,  175,  175,    0,  174,  176,  175,  233,
+	  228,  174,  175,  175,  175,    0,  174,  176,  175,  225,  174,  175,
+	  175,  175,    0,  174,  176,  175,  228,  234,  174,  175,  175,  175,
+	    0,  175,  235,  175,  175,  175,    0,  174,  176,  175,  236,  174,
+	  175,  175,  175,    0,  174,  176,  175,  237,  174,  175,  175,  175,
+	    0,  174,  176,  175,  238,  174,  175,  175,  175,    0,  174,  176,
+	  175,  239,  174,  175,  175,  175,    0,  174,  176,  175,  240,  174,
+	  175,  175,  175,    0,  174,  176,  175,  241,  174,  175,  175,  175,
+	    0,  174,  176,  175,  242,  174,  175,  175,  175,    0,  174,  176,
+	  175,  243,  174,  175,  175,  175,    0,  174,  176,  175,  244,  174,
+	  175,  175,  175,    0,  174,  176,  175,  245,  174,  175,  175,  175,
+	    0,  174,  176,  175,  228,  174,  175,  175,  175,    0,  174,  176,
+	  175,  246,  247,  174,  175,  175,  175,    0,  174,  176,  175,  228,
+	  174,  175,  175,  175,    0,  174,  176,  175,  248,  174,  175,  175,
+	  175,    0,  174,  176,  175,  228,  174,  175,  175,  175,    0,  174,
+	  176,  175,  249,  246,  174,  175,  175,  175,    0,  174,  176,  175,
+	  228,  174,  175,  175,  175,    0,  174,  176,  175,  228,  174,  175,
+	  175,  175,    0,  174,  176,  175,  250,  174,  175,  175,  175,    0,
+	  174,  176,  175,  251,  174,  175,  175,  175,    0,  174,  176,  175,
+	  228,  174,  175,  175,  175,    0,  174,  176,  175,  252,  253,  174,
+	  175,  175,  175,    0,  174,  176,  175,  254,  174,  175,  175,  175,
+	    0,  174,  176,  175,  228,  174,  175,  175,  175,    0,  174,  176,
+	  175,  227,  174,  175,  175,  175,    0,  174,  176,  175,  255,  174,
+	  175,  175,  175,    0,  174,  176,  175,  256,  174,  175,  175,  175,
+	    0,  174,  176,  175,  227,  174,  175,  175,  175,    0,   59,   60,
+	   62,   61,  257,   59,   61,   61,   61,    0,   59,   60,   62,   61,
+	  258,   59,   61,   61,   61,    0,   61,   61,   61,   61,    0,   59,
+	   60,   62,   61,  259,   59,   61,   61,   61,    0,   59,   60,   62,
+	   61,  260,   59,   61,   61,   61,    0,   59,   60,   62,   61,  258,
+	   59,   61,   61,   61,    0,   59,   60,   62,   61,   83,  261,   59,
+	   61,   61,   61,    0,   59,   60,   62,   61,  262,   59,   61,   61,
+	   61,    0,   59,   60,   62,   61,  258,   59,   61,   61,   61,    0,
+	   59,   60,   62,   61,  263,  258,   59,   61,   61,   61,    0,   59,
+	   60,   62,   61,   83,   59,   61,   61,   61,    0,   59,   60,   62,
+	   61,  258,  264,   59,   61,   61,   61,    0,   61,  265,   61,   61,
+	   61,    0,   59,   60,   62,   61,  266,   59,   61,   61,   61,    0,
+	   59,   60,   62,   61,  267,   59,   61,   61,   61,    0,   59,   60,
+	   62,   61,  268,   59,   61,   61,   61,    0,   59,   60,   62,   61,
+	  269,   59,   61,   61,   61,    0,   59,   60,   62,   61,  270,   59,
+	   61,   61,   61,    0,   59,   60,   62,   61,  271,   59,   61,   61,
+	   61,    0,   59,   60,   62,   61,  272,   59,   61,   61,   61,    0,
+	   59,   60,   62,   61,  273,   59,   61,   61,   61,    0,   59,   60,
+	   62,   61,  274,   59,   61,   61,   61,    0,   59,   60,   62,   61,
+	  275,   59,   61,   61,   61,    0,   59,   60,   62,   61,  258,   59,
+	   61,   61,   61,    0,   59,   60,   62,   61,  276,  277,   59,   61,
+	   61,   61,    0,   59,   60,   62,   61,  258,   59,   61,   61,   61,
+	    0,   59,   60,   62,   61,  278,   59,   61,   61,   61,    0,   59,
+	   60,   62,   61,  258,   59,   61,   61,   61,    0,   59,   60,   62,
+	   61,  279,  276,   59,   61,   61,   61,    0,   59,   60,   62,   61,
+	  258,   59,   61,   61,   61,    0,   59,   60,   62,   61,  258,   59,
+	   61,   61,   61,    0,   59,   60,   62,   61,  280,   59,   61,   61,
+	   61,    0,   59,   60,   62,   61,  281,   59,   61,   61,   61,    0,
+	   59,   60,   62,   61,  258,   59,   61,   61,   61,    0,   59,   60,
+	   62,   61,  282,  283,   59,   61,   61,   61,    0,   59,   60,   62,
+	   61,  284,   59,   61,   61,   61,    0,   59,   60,   62,   61,  258,
+	   59,   61,   61,   61,    0,   59,   60,   62,   61,  257,   59,   61,
+	   61,   61,    0,   59,   60,   62,   61,  285,   59,   61,   61,   61,
+	    0,   59,   60,   62,   61,  286,   59,   61,   61,   61,    0,   59,
+	   60,   62,   61,  257,   59,   61,   61,   61,    0,   76,   77,  287,
+	  288,   79,   76,   77,   78,   78,    0,   80,   60,   62,   81,  289,
+	   79,   80,   81,   78,   78,    0,   80,   60,   62,   81,  290,   79,
+	   80,   81,   78,   78,    0,   59,   60,   62,   81,   59,   81,   81,
+	   81,    0,   80,   60,   62,   81,  291,   79,   80,   81,   78,   78,
+	    0,   80,   60,   62,   81,  292,   79,   80,   81,   78,   78,    0,
+	   80,   60,   62,   81,  290,   79,   80,   81,   78,   78,    0,   76,
+	   77,  287,  293,   79,   76,   77,   78,   78,    0,   80,   60,   62,
+	   81,  294,   79,   80,   81,   78,   78,    0,   80,   60,   62,   81,
+	  290,   79,   80,   81,   78,   78,    0,   76,   77,  295,  296,   79,
+	   76,   77,   78,   78,    0,   80,   60,   62,   81,  287,   79,   80,
+	   81,   78,   78,    0,   59,   60,   62,   81,  297,  297,   59,   81,
+	   81,   81,    0,   76,   81,   79,   76,   81,   78,   78,    0,   76,
+	   77,  298,  299,   79,   76,   77,   78,   78,    0,   59,   60,   62,
+	   81,  297,   59,   81,   81,   81,    0,   59,   60,   62,   81,  300,
+	   59,   81,   81,   81,    0,   80,   60,   62,   81,  301,   79,   80,
+	   81,   78,   78,    0,   80,   60,   62,   81,  302,   79,   80,   81,
+	   78,   78,    0,   80,   60,   62,   81,  303,   79,   80,   81,   78,
+	   78,    0,   80,   60,   62,   81,  304,   79,   80,   81,   78,   78,
+	    0,   80,   60,   62,   81,  305,   79,   80,   81,   78,   78,    0,
+	   80,   60,   62,   81,  306,   79,   80,   81,   78,   78,    0,   80,
+	   60,   62,   81,  307,   79,   80,   81,   78,   78,    0,   80,   60,
+	   62,   81,  308,   79,   80,   81,   78,   78,    0,   80,   60,   62,
+	   81,  309,   79,   80,   81,   78,   78,    0,   80,   60,   62,   81,
+	  310,   79,   80,   81,   78,   78,    0,   80,   60,   62,   81,  290,
+	   79,   80,   81,   78,   78,    0,   76,   77,  311,  312,   79,   76,
+	   77,   78,   78,    0,   80,   60,   62,   81,  290,   79,   80,   81,
+	   78,   78,    0,   80,   60,   62,   81,  313,   79,   80,   81,   78,
+	   78,    0,   80,   60,   62,   81,  290,   79,   80,   81,   78,   78,
+	    0,   76,   77,  314,  311,   79,   76,   77,   78,   78,    0,   80,
+	   60,   62,   81,  290,   79,   80,   81,   78,   78,    0,   76,   77,
+	  298,   79,   76,   77,   78,   78,    0,   76,   77,  315,   79,   76,
+	   77,   78,   78,    0,   80,   60,   62,   81,  316,   79,   80,   81,
+	   78,   78,    0,   80,   60,   62,   81,  290,   79,   80,   81,   78,
+	   78,    0,   76,   77,  317,  318,   79,   76,   77,   78,   78,    0,
+	   80,   60,   62,   81,  319,   79,   80,   81,   78,   78,    0,   80,
+	   60,   62,   81,  290,   79,   80,   81,   78,   78,    0,   80,   60,
+	   62,   81,  289,   79,   80,   81,   78,   78,    0,   76,   77,  320,
+	   79,   76,   77,   78,   78,    0,   80,   60,   62,   81,  321,   79,
+	   80,   81,   78,   78,    0,   80,   60,   62,   81,  289,   79,   80,
+	   81,   78,   78,    0,   44,   45,  322,  323,   44,   45,   45,   45,
+	    0,   44,   45,  324,   44,   45,   45,   45,    0,   44,   45,  325,
+	   44,   45,   45,   45,    0,   45,   45,   45,   45,    0,   44,   45,
+	  326,   44,   45,   45,   45,    0,   44,   45,  327,   44,   45,   45,
+	   45,    0,   44,   45,  325,   44,   45,   45,   45,    0,   44,   45,
+	  322,  328,   44,   45,   45,   45,    0,   44,   45,  329,   44,   45,
+	   45,   45,    0,   44,   45,  325,   44,   45,   45,   45,    0,   44,
+	   45,  330,  325,   44,   45,   45,   45,    0,   44,   45,  322,   44,
+	   45,   45,   45,    0,   44,   45,  325,  331,   44,   45,   45,   45,
+	    0,   45,  332,   45,   45,   45,    0,   44,   45,  333,   44,   45,
+	   45,   45,    0,   44,   45,  334,   44,   45,   45,   45,    0,   44,
+	   45,  335,   44,   45,   45,   45,    0,   44,   45,  336,   44,   45,
+	   45,   45,    0,   44,   45,  337,   44,   45,   45,   45,    0,   44,
+	   45,  338,   44,   45,   45,   45,    0,   44,   45,  339,   44,   45,
+	   45,   45,    0,   44,   45,  340,   44,   45,   45,   45,    0,   44,
+	   45,  341,   44,   45,   45,   45,    0,   44,   45,  342,   44,   45,
+	   45,   45,    0,   44,   45,  325,   44,   45,   45,   45,    0,   44,
+	   45,  343,  344,   44,   45,   45,   45,    0,   44,   45,  325,   44,
+	   45,   45,   45,    0,   44,   45,  345,   44,   45,   45,   45,    0,
+	   44,   45,  325,   44,   45,   45,   45,    0,   44,   45,  346,  343,
+	   44,   45,   45,   45,    0,   44,   45,  325,   44,   45,   45,   45,
+	    0,   44,   45,  325,   44,   45,   45,   45,    0,   44,   45,  347,
+	   44,   45,   45,   45,    0,   44,   45,  348,   44,   45,   45,   45,
+	    0,   44,   45,  325,   44,   45,   45,   45,    0,   44,   45,  349,
+	  350,   44,   45,   45,   45,    0,   44,   45,  351,   44,   45,   45,
+	   45,    0,   44,   45,  325,   44,   45,   45,   45,    0,   44,   45,
+	  324,   44,   45,   45,   45,    0,   44,   45,  352,   44,   45,   45,
+	   45,    0,   44,   45,  353,   44,   45,   45,   45,    0,   44,   45,
+	  324,   44,   45,   45,   45,    0,   20,   21,  354,  355,   20,   21,
+	   21,   21,    0,   20,   21,  356,   20,   21,   21,   21,    0,   20,
+	   21,  357,   20,   21,   21,   21,    0,   21,   21,   21,   21,    0,
+	   20,   21,  358,   20,   21,   21,   21,    0,   20,   21,  359,   20,
+	   21,   21,   21,    0,   20,   21,  357,   20,   21,   21,   21,    0,
+	   20,   21,  354,  360,   20,   21,   21,   21,    0,   20,   21,  361,
+	   20,   21,   21,   21,    0,   20,   21,  357,   20,   21,   21,   21,
+	    0,   20,   21,  362,  357,   20,   21,   21,   21,    0,   20,   21,
+	  354,   20,   21,   21,   21,    0,   20,   21,  357,  363,   20,   21,
+	   21,   21,    0,   21,  364,   21,   21,   21,    0,   20,   21,  365,
+	   20,   21,   21,   21,    0,   20,   21,  366,   20,   21,   21,   21,
+	    0,   20,   21,  367,   20,   21,   21,   21,    0,   20,   21,  368,
+	   20,   21,   21,   21,    0,   20,   21,  369,   20,   21,   21,   21,
+	    0,   20,   21,  370,   20,   21,   21,   21,    0,   20,   21,  371,
+	   20,   21,   21,   21,    0,   20,   21,  372,   20,   21,   21,   21,
+	    0,   20,   21,  373,   20,   21,   21,   21,    0,   20,   21,  374,
+	   20,   21,   21,   21,    0,   20,   21,  357,   20,   21,   21,   21,
+	    0,   20,   21,  375,  376,   20,   21,   21,   21,    0,   20,   21,
+	  357,   20,   21,   21,   21,    0,   20,   21,  377,   20,   21,   21,
+	   21,    0,   20,   21,  357,   20,   21,   21,   21,    0,   20,   21,
+	  378,  375,   20,   21,   21,   21,    0,   20,   21,  357,   20,   21,
+	   21,   21,    0,   20,   21,  357,   20,   21,   21,   21,    0,   20,
+	   21,  379,   20,   21,   21,   21,    0,   20,   21,  380,   20,   21,
+	   21,   21,    0,   20,   21,  357,   20,   21,   21,   21,    0,   20,
+	   21,  381,  382,   20,   21,   21,   21,    0,   20,   21,  383,   20,
+	   21,   21,   21,    0,   20,   21,  357,   20,   21,   21,   21,    0,
+	   20,   21,  356,   20,   21,   21,   21,    0,   20,   21,  384,   20,
+	   21,   21,   21,    0,   20,   21,  385,   20,   21,   21,   21,    0,
+	   20,   21,  356,   20,   21,   21,   21,    0,  387,  388,  389,  390,
+	  387,  386,  392,  391,  393,  391,  393,  395,  391,    0
+	};
+}
+
+private static final short _cool_lexer_indicies[] = init__cool_lexer_indicies_0();
+
+
+private static short[] init__cool_lexer_trans_targs_0()
+{
+	return new short [] {
+	  355,    1,    3,    2,  355,    5,    6,    7,    8,    9,  313,  320,
+	  323,  325,  338,  342,  344,  345,  348,  352,   10,    9,   11,   12,
+	   23,   13,   14,   15,   16,   17,   18,   19,   20,   21,  271,  278,
+	  281,  283,  296,  300,  302,  303,  306,  310,   22,   21,   22,   24,
+	   30,  191,  194,  196,  209,  213,  215,  216,  219,  223,  355,   25,
+	   31,   24,   26,   25,   26,   27,  226,  233,  236,  240,  254,  258,
+	  260,  261,  264,  268,   23,   27,   28,  355,   29,   28,   29,  185,
+	  188,   32,   96,   97,  143,  150,  153,  155,  168,  172,  174,  175,
+	  178,  182,   33,   34,   35,   38,   39,   40,   41,   42,   43,   44,
+	   45,   47,   48,   49,   56,   59,   63,   76,   80,   84,   85,   88,
+	   92,   95,   36,   37,   23,   23,   23,   23,   23,   23,   46,   23,
+	   23,   23,   48,   50,   53,   51,   52,   54,   55,   57,   58,   60,
+	   61,   62,   48,   64,   65,   66,   67,   68,   69,   70,   71,   72,
+	   73,   74,   75,   77,   78,   79,   81,   82,   83,   23,   86,   87,
+	   89,   91,   90,   93,   94,   23,   98,   97,   99,   98,   99,  100,
+	  101,  108,  111,  113,  126,  130,  132,  133,  136,  140,   32,   96,
+	  100,  102,  105,  103,  104,  106,  107,  109,  110,  112,  114,  115,
+	  116,  117,  118,  119,  120,  121,  122,  123,  124,  125,  127,  128,
+	  129,  131,  134,  135,  137,  139,  138,  141,  142,  144,  147,  145,
+	  146,  148,  149,  151,  152,  154,  156,  157,  158,  159,  160,  161,
+	  162,  163,  164,  165,  166,  167,  169,  170,  171,  173,  176,  177,
+	  179,  181,  180,  183,  184,  186,  187,  189,  190,  192,  193,  195,
+	  197,  198,  199,  200,  201,  202,  203,  204,  205,  206,  207,  208,
+	  210,  211,  212,  214,  217,  218,  220,  222,  221,  224,  225,  227,
+	  230,  228,  229,  231,  232,  234,  235,  237,  238,  239,  241,  242,
+	  243,  244,  245,  246,  247,  248,  249,  250,  251,  252,  253,  255,
+	  256,  257,  259,  262,  263,  265,  267,  266,  269,  270,  272,  275,
+	  273,  274,  276,  277,  279,  280,  282,  284,  285,  286,  287,  288,
+	  289,  290,  291,  292,  293,  294,  295,  297,  298,  299,  301,  304,
+	  305,  307,  309,  308,  311,  312,  314,  317,  315,  316,  318,  319,
+	  321,  322,  324,  326,  327,  328,  329,  330,  331,  332,  333,  334,
+	  335,  336,  337,  339,  340,  341,  343,  346,  347,  349,  351,  350,
+	  353,  354,  355,  355,  356,  357,  359,  355,    0,  358,  355,    4
+	};
+}
+
+private static final short _cool_lexer_trans_targs[] = init__cool_lexer_trans_targs_0();
+
+
+private static byte[] init__cool_lexer_trans_actions_0()
+{
+	return new byte [] {
+	   51,    0,    0,    0,   41,    0,    0,    1,    0,   59,   59,   59,
+	   59,   59,   59,   59,   59,   59,   59,   59,    5,   31,    0,    0,
+	    0,    0,    0,    0,    0,    0,    0,    3,    0,   59,   59,   59,
+	   59,   59,   59,   59,   59,   59,   59,   59,    5,   31,    0,   62,
+	   62,   62,   62,   62,   62,   62,   62,   62,   62,   62,   39,    7,
+	    0,   31,    7,    0,    0,   59,   59,   59,   59,   59,   59,   59,
+	   59,   59,   59,   59,    5,   31,   71,   53,   56,   31,    0,   31,
+	   31,    0,    0,   59,   59,   59,   59,   59,   59,   59,   59,   59,
+	   59,   59,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+	    0,    0,   59,   59,   59,   59,   59,   59,   59,   59,   59,   59,
+	   59,    0,    0,    0,   17,   19,   13,    9,   11,   15,    0,   25,
+	   27,   23,   31,   31,   31,   31,    0,   31,   31,   31,   31,   31,
+	   31,   31,    0,    0,   31,   31,   31,   31,   31,   31,   31,   31,
+	   31,   31,   31,   31,   31,   31,   31,   31,    0,   21,   31,   31,
+	   31,   31,   31,   31,   31,   29,    7,   31,    7,    0,    0,   59,
+	   59,   59,   59,   59,   59,   59,   59,   59,   59,   59,    5,    5,
+	   31,   31,   31,   31,    0,   31,   31,   31,   31,   31,    0,   31,
+	   31,   31,   31,   31,   31,   31,   31,   31,   31,   31,   31,   31,
+	   31,   31,   31,   31,   31,   31,   31,   31,   31,   31,   31,   31,
+	    0,   31,   31,   31,   31,   31,    0,   31,   31,   31,   31,   31,
+	   31,   31,   31,   31,   31,   31,   31,   31,   31,   31,   31,   31,
+	   31,   31,   31,   31,   31,   31,    0,   31,   31,   31,   31,   31,
+	    0,   31,   31,   31,   31,   31,   31,   31,   31,   31,   31,   31,
+	   31,   31,   31,   31,   31,   31,   31,   31,   31,   31,   31,   71,
+	   71,   71,   71,   71,   71,   71,   71,   71,   66,   31,   66,   66,
+	   31,   71,   71,   71,   71,   71,   71,   71,   71,   71,   71,   71,
+	   71,   71,   71,   71,   71,   71,   71,   71,   71,   71,   31,   31,
+	   31,    0,   31,   31,   31,   31,   31,    0,   31,   31,   31,   31,
+	   31,   31,   31,   31,   31,   31,   31,   31,   31,   31,   31,   31,
+	   31,   31,   31,   31,   31,   31,   31,   31,   31,    0,   31,   31,
+	   31,   31,   31,    0,   31,   31,   31,   31,   31,   31,   31,   31,
+	   31,   31,   31,   31,   31,   31,   31,   31,   31,   31,   31,   31,
+	   31,   31,   45,   43,   37,    0,   37,   49,    0,    0,   47,    0
+	};
+}
+
+private static final byte _cool_lexer_trans_actions[] = init__cool_lexer_trans_actions_0();
+
+
+private static byte[] init__cool_lexer_to_state_actions_0()
+{
+	return new byte [] {
+	    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+	    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+	    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+	    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+	    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+	    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+	    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+	    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+	    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+	    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+	    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+	    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+	    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+	    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+	    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+	    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+	    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+	    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+	    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+	    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+	    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+	    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+	    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+	    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+	    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+	    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+	    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+	    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+	    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+	    0,    0,    0,    0,    0,    0,    0,   33,    0,    0,    0,    0
+	};
+}
+
+private static final byte _cool_lexer_to_state_actions[] = init__cool_lexer_to_state_actions_0();
+
+
+private static byte[] init__cool_lexer_from_state_actions_0()
+{
+	return new byte [] {
+	    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+	    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+	    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+	    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+	    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+	    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+	    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+	    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+	    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+	    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+	    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+	    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+	    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+	    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+	    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+	    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+	    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+	    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+	    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+	    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+	    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+	    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+	    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+	    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+	    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+	    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+	    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+	    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+	    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+	    0,    0,    0,    0,    0,    0,    0,   35,    0,    0,    0,    0
+	};
+}
+
+private static final byte _cool_lexer_from_state_actions[] = init__cool_lexer_from_state_actions_0();
+
+
+private static short[] init__cool_lexer_eof_trans_0()
+{
+	return new short [] {
+	    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+	    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+	    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+	    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+	    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+	    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+	    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+	    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+	    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+	    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+	    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+	    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+	    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+	    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+	    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+	    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+	    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+	    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+	    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+	    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+	    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+	    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+	    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+	    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+	    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+	    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+	    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+	    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+	    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+	    1,    1,    1,    1,    1,    1,    1,    0,  392,  392,  395,  392
+	};
+}
+
+private static final short _cool_lexer_eof_trans[] = init__cool_lexer_eof_trans_0();
+
+
+static final int cool_lexer_start = 355;
+static final int cool_lexer_first_final = 355;
+static final int cool_lexer_error = -1;
+
+static final int cool_lexer_en_main = 355;
+
+
+// line 193 "cool.rl"
 }

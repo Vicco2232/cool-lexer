@@ -32,6 +32,7 @@ CUPCLASSPATH := ${CLASSDIR}/lib/java-cup-11a.jar:${CLASSDIR}/lib/jlex.jar
 
 JAVAC := javac
 JLEX := java -classpath ${CLASSDIR}/lib/jlex.jar JLex.Main
+RAGEL := ragel -J
 
 # sm: we need rt.jar on Solaris/x86, and I'm hoping it won't
 # cause a problem elsewhere
@@ -49,9 +50,12 @@ lexer: Makefile ${CLS}
 	echo 'java -classpath ${CLASSPATH}:`dirname $$0` Lexer $$*' >> lexer
 	chmod 755 lexer
 
-CoolLexer.java: cool.lex
-	${JLEX} $<
-	mv cool.lex.java CoolLexer.java
+CoolLexer.java: cool.rl
+	${RAGEL} $< -o CoolLexer.java
+
+# CoolLexer.java: cool.lex
+# 	${JLEX} $<
+# 	mv cool.lex.java CoolLexer.java
 
 dotest:	lexer test.cl
 	./lexer test.cl
