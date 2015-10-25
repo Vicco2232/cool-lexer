@@ -81,14 +81,18 @@ import java.util.Arrays;
                       AbstractSymbol sym = AbstractTable.stringtable.addString(token);
                       push_token(new Symbol(TokenConstants.STR_CONST, sym));
                     }
+
+    # Debugging Action - TODO: Remove when done
     action Quote    { System.out.println("QUOTE"); }
-
-
+    action SEscape  { System.out.println("SESCAPE"); }
     action FV       { System.out.println("Entering feature_variable"); }
 
 
     action mark_start   { ms = fpc; }
     action mark_end     { me = fpc + 1; }
+
+    action start_string   { sb = new StringBuffer(); }
+    action concat_string  { sb.append(get_token(data, ms, me)); }
 
     # Comments
     line_comment = '--' . (any - '\n')+;
@@ -125,10 +129,11 @@ import java.util.Arrays;
     integer = [0-9]+ >mark_start @mark_end %Integer;
     bool = 'true' | 'false' %Bool;
     quote = '"';
-    string_char = any -- quote;
-    # string = '"' . (string_char . ('\\\n' | '\\"'))* . '"' %String;
-    string_content = any* >mark_start @mark_end;
-    string = (quote . (string_content %String) . quote);
+    sescape = '\\' . [ \t]* . '\n';
+    scontent = (any* -- quote -- '\n');
+    scontent_quote = (scontent . ('\\"' . scontent)*); # >mark_start @mark_end;
+    scontent_multiline = (scontent_quote . (sescape . scontent_quote)*) >mark_start @mark_end;
+    string = (quote . (scontent_multiline %String) . quote);
 
     # Operator
     assign = '<-' %Assign;
@@ -189,6 +194,7 @@ import java.util.Arrays;
         # class_stmt;
         # new_stmt;
         # formal;
+        sescape;
         expr;
         space;
         any => { System.err.println("LEXER BUG - UNMATCHED: " + get_token(data, ts, te)); };
