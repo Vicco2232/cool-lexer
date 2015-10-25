@@ -77,7 +77,8 @@ import java.util.Arrays;
                       }
                     }
     action String   {
-                      String token = get_token(data, ms, me);
+                      // String token = get_token(data, ms, me);
+                      String token = sb.toString();
                       AbstractSymbol sym = AbstractTable.stringtable.addString(token);
                       push_token(new Symbol(TokenConstants.STR_CONST, sym));
                     }
@@ -91,8 +92,14 @@ import java.util.Arrays;
     action mark_start   { ms = fpc; }
     action mark_end     { me = fpc + 1; }
 
-    action start_string   { sb = new StringBuffer(); }
-    action concat_string  { sb.append(get_token(data, ms, me)); }
+    action string_start             { sb = new StringBuffer(); }
+    action string_concat            { sb.append(get_token(data, ms, me)); }
+    action string_concat_backspace  { sb.append('\b'); }
+    action string_concat_tab        { sb.append('\t'); }
+    action string_concat_newline    { sb.append('\n'); }
+    action string_concat_formfeed   { sb.append('\f'); }
+    action string_concat_quote      { sb.append('"'); }
+    action string_concat_char       { sb.append(fc); }
 
     # Comments
     line_comment = '--' . (any - '\n')+;
@@ -128,12 +135,25 @@ import java.util.Arrays;
     # Constants
     integer = [0-9]+ >mark_start @mark_end %Integer;
     bool = 'true' | 'false' %Bool;
+
+
+    # String Constant
     quote = '"';
-    sescape = '\\' . [ \t]* . '\n';
-    scontent = (any* -- quote -- '\n');
-    scontent_quote = (scontent . ('\\"' . scontent)*); # >mark_start @mark_end;
-    scontent_multiline = (scontent_quote . (sescape . scontent_quote)*) >mark_start @mark_end;
-    string = (quote . (scontent_multiline %String) . quote);
+
+    sbackspace = '\\b' %string_concat_backspace;
+    stab = '\\t' %string_concat_tab;
+    snewline = '\\n' %string_concat_newline;
+    sformfeed = '\\f' %string_concat_formfeed;
+    squote = '\\"' %string_concat_quote;
+    schar = ('\\' . (any - 'b' - 't' - 'n' -'f' - '"')) %string_concat_char;
+    sescape = ('\\' . [ \t]* . '\n') %string_concat_newline;
+
+    sspecials = sbackspace | stab | snewline | sformfeed | squote | schar | sescape;
+
+    scontent = (any* -- quote -- '\\') >mark_start @mark_end %string_concat;
+    scontent_quote = (scontent . (sspecials . scontent)*);
+    string = ((quote >string_start) . (scontent_quote %String) . quote);
+
 
     # Operator
     assign = '<-' %Assign;
@@ -190,7 +210,7 @@ import java.util.Arrays;
     new_stmt = new . typeid;
 
     main := |*
-        # comment;
+        comment;
         # class_stmt;
         # new_stmt;
         # formal;
