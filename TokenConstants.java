@@ -34,7 +34,7 @@ public class TokenConstants {
     public static final int EOF = 0;
     public static final int INT_CONST = 41;
     public static final int NEW = 18;
-    public static final int error = 1;      // Not implemented
+    public static final int error = 1;      // Ignore
     public static final int ISVOID = 19;
     public static final int EQ = 28;
     public static final int ERROR = 23;     // Not implemented
@@ -42,7 +42,7 @@ public class TokenConstants {
     public static final int NEG = 31;
     public static final int LBRACE = 38;
     public static final int ELSE = 3;
-    public static final int DARROW = 17;    // Ignore
+    public static final int DARROW = 17;    // Not implemented
     public static final int WHILE = 13;     // Not implemented
     public static final int ESAC = 15;
     public static final int LET = 8;

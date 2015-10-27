@@ -41,8 +41,8 @@ class Lexer {
                 lexer.set_filename(args[i]);
                 Symbol s;
                 while ((s = lexer.next_token()) != null && s.sym != TokenConstants.EOF) {
-                    System.out.println(s);
-                    Utilities.dumpToken(System.out, lexer.get_curr_lineno(), s);
+                    int lineno = lexer.next_lineno();
+                    Utilities.dumpToken(System.out, lineno, s);
                 }
             } catch (FileNotFoundException ex) {
                 Utilities.fatalError("Could not open input file " + args[i]);

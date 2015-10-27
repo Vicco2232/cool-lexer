@@ -53,7 +53,7 @@ class CellularAutomaton inherits IO {
         then
             "X"
         else
-            '.'
+            "."
         fi
     };
 

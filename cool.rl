@@ -83,15 +83,21 @@ import java.util.Arrays;
                       push_token(new Symbol(TokenConstants.STR_CONST, sym));
                     }
 
+    # Error Action
+    action EOFComment       { push_token(new Symbol(TokenConstants.ERROR, "EOF in string constant")); }
+    action UnmatchedComment { push_token(new Symbol(TokenConstants.ERROR, "Unmatched *)")); }
+
     # Debugging Action - TODO: Remove when done
-    action Quote    { System.out.println("QUOTE"); }
-    action SEscape  { System.out.println("SESCAPE"); }
-    action FV       { System.out.println("Entering feature_variable"); }
+    action Quote      { System.out.println("QUOTE"); }
+    action SEscape    { System.out.println("SESCAPE"); }
+    action FV         { System.out.println("Entering feature_variable"); }
 
 
-    action mark_start   { ms = fpc; }
+    action mark_start   { ms = me = fpc; }
     action mark_end     { me = fpc + 1; }
 
+
+    # String Action
     action string_start             { sb = new StringBuffer(); }
     action string_concat            { sb.append(get_token(data, ms, me)); }
     action string_concat_backspace  { sb.append('\b'); }
@@ -101,10 +107,18 @@ import java.util.Arrays;
     action string_concat_quote      { sb.append('"'); }
     action string_concat_char       { sb.append(fc); }
 
+    action Newline  { this.curr_lineno += 1; }
+
+
+    newline = '\n' %Newline;
+
     # Comments
     line_comment = '--' . (any - '\n')+;
-    multiline_comment = '(*' . (any+ -- '*)') . '*)';
-    comment = line_comment | multiline_comment;
+    multiline_comment = '(*' . (((any - '\n')|newline)+ -- '*)') . '*)';
+    eof_comment = ('(*' . (any+ -- '*)')) %EOFComment;
+    unmatched_comment = '*)' %UnmatchedComment;
+
+    comment = line_comment | multiline_comment | eof_comment | unmatched_comment;
 
 
     # Keywords
@@ -145,8 +159,8 @@ import java.util.Arrays;
     snewline = '\\n' %string_concat_newline;
     sformfeed = '\\f' %string_concat_formfeed;
     squote = '\\"' %string_concat_quote;
-    schar = ('\\' . (any - 'b' - 't' - 'n' -'f' - '"')) %string_concat_char;
-    sescape = ('\\' . [ \t]* . '\n') %string_concat_newline;
+    schar = ('\\' . (any - 'b' - 't' - 'n' -'f' - '"')) @string_concat_char;
+    sescape = ('\\' . [ \t]* . newline) %string_concat_newline;
 
     sspecials = sbackspace | stab | snewline | sformfeed | squote | schar | sescape;
 
@@ -200,24 +214,21 @@ import java.util.Arrays;
 
     formal = objectid . space* . colon . space* . typeid;
 
-    function_def = objectid . lparen . formal? . (comma . formal)* . rparen . lbrace . expr+ . rbrace;
-    # feature_variable = objectid . space* . ':' . space* . typeid .
-    #  (space* . '<-' . space* . expr+)?;
-    # feature = (feature_method | feature_variable | space)+;
-
     inherits_stmt = 'inherits' @Inherits . space+ . typeid;
     class_stmt = class . space+ . typeid . space+ . inherits_stmt?;
     new_stmt = new . typeid;
 
     main := |*
-        comment;
-        # class_stmt;
-        # new_stmt;
-        # formal;
-        sescape;
-        expr;
-        space;
-        any => { System.err.println("LEXER BUG - UNMATCHED: " + get_token(data, ts, te)); };
+      (
+        newline |
+        comment |
+        class_stmt |
+        new_stmt |
+        formal |
+        expr |
+        space
+      );
+      any => { push_token(new Symbol(TokenConstants.ERROR, fc)); };
     *|;
 }%%
 
@@ -231,6 +242,7 @@ class CoolLexer implements java_cup.runtime.Scanner {
     private AbstractSymbol filename;
     private BufferedReader reader;
     LinkedList<Symbol> tokens = new LinkedList<Symbol>();
+    LinkedList<Integer> lineNumbers = new LinkedList<Integer>();
 
     CoolLexer(java.io.Reader reader) throws IOException {
         this();
@@ -284,10 +296,11 @@ class CoolLexer implements java_cup.runtime.Scanner {
 
     void push_token(Symbol sym) {
         this.tokens.add(sym);
+        this.lineNumbers.add(new Integer(this.curr_lineno));
     }
 
-    int get_curr_lineno() {
-        return this.curr_lineno;
+    public Integer next_lineno() {
+        return this.lineNumbers.poll();
     }
 
     void set_filename(String fname) {
