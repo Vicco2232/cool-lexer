@@ -122,7 +122,7 @@ import java.util.Arrays;
 
 
     # Keywords
-    class = 'class' %Class;
+    class = ('class'|'Class') %Class;
     inherits = 'inherits' %Inherits;
     new = 'new' %New;
     if = 'if' %If;
